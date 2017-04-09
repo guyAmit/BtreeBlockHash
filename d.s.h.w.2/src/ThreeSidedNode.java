@@ -1,4 +1,4 @@
-public class ThreeSidedNode {
+public class ThreeSidedNode<T> {
 	
 	private Object data;
 	private ThreeSidedNode next;
@@ -8,13 +8,13 @@ public class ThreeSidedNode {
 
 	
 
-	public ThreeSidedNode(Object data, ThreeSidedNode next,ThreeSidedNode back){
+	public ThreeSidedNode(T data, ThreeSidedNode next,ThreeSidedNode back){
 	    this.data = data;
 	    this.next = next;
 	    this.back = back;
 	}
      
-	public ThreeSidedNode(Object data){
+	public ThreeSidedNode(T data){
 	    this(data, null,null);
 	}
 	

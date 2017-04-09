@@ -122,6 +122,11 @@ public class TwinSortedList<T> {
  * ****************************************************************************** *
  **********************************************************************************/
   
+  public int getSize(){
+	  return this.size;
+  }
+  
+  
   @Override
   public String toString() {
 	String s ="SortedList: [ ";
