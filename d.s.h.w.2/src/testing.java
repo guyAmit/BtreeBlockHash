@@ -4,32 +4,20 @@ public class testing {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		PonintsYComperator compY = new PonintsYComperator();
-		PonintsXComperator compX = new PonintsXComperator();
-
-		TwinSortedList<Point> X = new TwinSortedList<>(compX);
-		X.add(new Point(1 ,4));
-		X.add(new Point(2 ,3));
-		X.add(new Point(3 ,2));
-		X.add(new Point(4 ,1));
-		System.out.println(X);
 		
-		TwinSortedList<Point> Y = new TwinSortedList<>(compY);
-		Y.add(new Point(1 ,4));
-		Y.add(new Point(2 ,3));
-		Y.add(new Point(3 ,2));
-		Y.add(new Point(4 ,1));
-		System.out.println(Y);
+		DataStructure ds = new DataStructure();
+		ds.addPoint(new Point(-3,3));
+		ds.addPoint(new Point(-2,2));
+		ds.addPoint(new Point(-1,1));
+		ds.addPoint(new Point(-0,0));
+		ds.addPoint(new Point(1,-1));
+		ds.addPoint(new Point(2,-2));
+		ds.addPoint(new Point(3,-3));
+		System.out.println(ds.toString());
 		
-		X.SetTwin(Y);
-		Y.SetTwin(X);
-		
-		Point max = new Point(2,0);
-		Point min =new Point(3,0);
-		X.delete(max, min);
+		ds.narrowRange(-1, 1, true);
 		System.out.println();
-		System.out.println(X);
-		System.out.println(Y);
+		System.out.println(ds.toString());
 	}
 
 }

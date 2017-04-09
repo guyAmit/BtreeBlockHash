@@ -62,45 +62,65 @@ public class TwinSortedList<T> {
   }
   
   
-  //assiting methood for delete
-  private void deleteInOtherList(ThreeSidedNode otherNode){
-	  ThreeSidedNode other = otherNode.getTwin();
-	  if(other.getBack()!=null & other.getNext()!=null){
-		  ThreeSidedNode back=other.getBack();
-		  ThreeSidedNode next= other.getNext();
-		  back.setNext(next);
-		  next.setBack(back);
-	  }
-	  else if(other.getBack()==null){ //other.back==null => at the begining of the list
-		  this.twinList.first=other.getNext();
-	  }
-	  else{//other.next==null => at ther end of list
-		  this.twinList.last=other.getBack();
-	  }
-  }
+
+  
+ /*
+   * *************delete method**********************
+   * using the fact that we are working on a doubly linked list
+   * we will reach the segment from both ends and change the first and last 
+   * pointers of the list, making it as if the other elements(not in the segment)
+   * were never in the list.
+   * mean while we will remove each item individually from the twin list, using 
+   * the pointer "twin"
+ */
   
   public void delete(T max, T min){
 	  int counter=0; //counter for counting how many items are we deleting
 	  ThreeSidedNode startPointer =this.first;
-	  while(comp.compare(min, (T)startPointer.getData())>1){
-		  this.deleteInOtherList(startPointer);
+	  while(comp.compare(min, (T)startPointer.getData())==1){
+		  this.deleteInTwinList(startPointer);
 		  startPointer=startPointer.getNext();
 		  counter++;
 	  }
 	  ThreeSidedNode endPointer=this.last;
-	  while(comp.compare(max, (T)endPointer.getData())<1){
-		  this.deleteInOtherList(endPointer);
+	  while(comp.compare(max, (T)endPointer.getData())==-1){
+		  this.deleteInTwinList(endPointer);
 		  endPointer=endPointer.getBack();
 		  counter++;
 	  }
+	  startPointer.setBack(null);
 	  this.first=startPointer;
+	  endPointer.setNext(null);
 	  this.last=endPointer;
 	  this.size-=counter;
 	  this.twinList.size-=counter;
   }
   
-  
-
+  /*
+   * *************** Assisting method****************
+   * simple algoritem that reach the twin list and remove the data of "otherNode"
+   * from it.
+   */
+  private void deleteInTwinList(ThreeSidedNode otherNode){
+	  ThreeSidedNode other = otherNode.getTwin();
+	  if(other.getBack()!=null & other.getNext()!=null){ //Inner part of the list
+		  ThreeSidedNode back=other.getBack();
+		  ThreeSidedNode next= other.getNext();
+		  back.setNext(next);
+		  next.setBack(back);
+	  }
+	  else if(other.getBack()==null){ //other.back==null => at the beginning of the list
+		  this.twinList.first=other.getNext();
+		  this.twinList.first.setBack(null);
+	  }
+	  else{//other.next==null => at ther end of list
+		  this.twinList.last=other.getBack();
+		  this.twinList.last.setNext(null);
+	  }
+  }
+/*******************************END of delete method******************************
+ * ****************************************************************************** *
+ **********************************************************************************/
   
   @Override
   public String toString() {
