@@ -19,7 +19,44 @@ public class TwinSortedList<T> {
 	  this.twinList=twinList;
   }
   
-  //add methood
+  
+  /*
+   * ************ the two closestFrom methods ************
+   * get methods, that allow quicker access to items in the list, 
+   * given the information about the sided the item is closest to.
+   */
+  
+  public ThreeSidedNode<T> closestFromStart(T val){
+	  ThreeSidedNode startPointer =this.first;
+	  while(comp.compare(val, (T)startPointer.getData())==1){
+		  this.deleteInTwinList(startPointer);
+		  startPointer=startPointer.getNext();
+	  }
+	  return startPointer;
+  }
+  
+  public ThreeSidedNode<T> closestFromEnd(T val){
+	  ThreeSidedNode endPointer=this.last;
+	  while(comp.compare(val, (T)endPointer.getData())==-1){
+		  this.deleteInTwinList(endPointer);
+		  endPointer=endPointer.getBack();
+	  }
+	  return endPointer;
+  }
+  
+  /*******************************END of closestFrom methods******************************/
+
+  
+  /*
+   * ************* add method ************
+   * a method that inserts items to the list
+   * and keeping it sorted, according to a partial order that
+   * the comparator is inflicting.
+   * the method returns the node which the data was inserted into, so the addPoint method
+   * in DataStracture could use it.
+   * the method also update the size of the list
+   */
+  
   public ThreeSidedNode add(T data){
 	 ThreeSidedNode toReturn =null; 
 	 if(this.first==null){
@@ -61,7 +98,7 @@ public class TwinSortedList<T> {
 	 return toReturn;
   }
   
-  
+  /*******************************END of add methods******************************/
 
   
  /*
@@ -72,6 +109,8 @@ public class TwinSortedList<T> {
    * were never in the list.
    * mean while we will remove each item individually from the twin list, using 
    * the pointer "twin"
+   * note: this method can be used just inside DataStracture, if this list
+   * is independent, this method will course an exception
  */
   
   public void delete(T max, T min){
@@ -118,9 +157,8 @@ public class TwinSortedList<T> {
 		  this.twinList.last.setNext(null);
 	  }
   }
-/*******************************END of delete method******************************
- * ****************************************************************************** *
- **********************************************************************************/
+/*******************************END of delete method******************************/
+
   
   public int getSize(){
 	  return this.size;

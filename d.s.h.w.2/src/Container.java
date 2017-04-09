@@ -8,4 +8,8 @@ public class Container{
 	{
 		return data;
 	}
+	
+	public void setData(Point data){
+		this.data=data;
+	}
 }
