@@ -58,10 +58,10 @@ public class DataStructure implements DT {
 			end= this.x.closestFromEnd(maxX);
 		}
 		else{
-			Point minX = new Point(0,min);
-			Point maxX = new Point(0,max);
-			start= this.y.closestFromStart(minX);
-			end= this.y.closestFromEnd(maxX);
+			Point minY = new Point(0,min);
+			Point maxY = new Point(0,max);
+			start= this.y.closestFromStart(minY);
+			end= this.y.closestFromEnd(maxY);
 		}
 		int counter=0;
 		ThreeSidedNode<Point> pointer= start;
@@ -117,10 +117,10 @@ public class DataStructure implements DT {
 		ThreeSidedNode maxY=this.y.last;
 		ThreeSidedNode minX  =this.x.first;
 		ThreeSidedNode minY = this.y.first;
-		int Xmax =((Point)maxX.getData()).getX();
-		int Ymax = ((Point)maxY.getData()).getY();
-		int Xmin = ((Point)maxX.getData()).getX();
-		int Ymin = ((Point)maxY.getData()).getY();
+		double Xmax =((Point)maxX.getData()).getX();
+	    double Ymax = ((Point)maxY.getData()).getY();
+		double Xmin = ((Point)minX.getData()).getX();
+		double Ymin = ((Point)minY.getData()).getY();
 		return (this.x.getSize()/((Xmax-Xmin)*(Ymax-Ymin)));
 	}
 	
@@ -207,11 +207,18 @@ public class DataStructure implements DT {
 	 * give a description of the data in the data structure
 	 */
 
+	public int size() {
+		// TODO Auto-generated method stub
+		return this.x.getSize();
+	}
+	
 	@Override
 	public String toString() {
 		String s ="X: "+this.x.toString()+"\n"+"Y: "+this.y.toString();
 		return s;
 	}
+
+
 
 	
 	//TODO: add members, methods, etc.

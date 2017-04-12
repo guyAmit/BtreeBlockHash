@@ -29,7 +29,6 @@ public class TwinSortedList<T> {
   public ThreeSidedNode<T> closestFromStart(T val){
 	  ThreeSidedNode startPointer =this.first;
 	  while(comp.compare(val, (T)startPointer.getData())==1){
-		  this.deleteInTwinList(startPointer);
 		  startPointer=startPointer.getNext();
 	  }
 	  return startPointer;
@@ -38,7 +37,6 @@ public class TwinSortedList<T> {
   public ThreeSidedNode<T> closestFromEnd(T val){
 	  ThreeSidedNode endPointer=this.last;
 	  while(comp.compare(val, (T)endPointer.getData())==-1){
-		  this.deleteInTwinList(endPointer);
 		  endPointer=endPointer.getBack();
 	  }
 	  return endPointer;
