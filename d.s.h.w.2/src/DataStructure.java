@@ -88,25 +88,96 @@ public class DataStructure implements DT {
 
 	/*
 	 * ************* getPointsInRangeOppAxis *****************
-	 * using the method above, this method gets the values sorted according to axis.
-	 * then it uses a quick sort or a merge sort to sort them according to the opposite axis.
-	 * note that this method is O(n), because the method above is O(n) and sorting those not
-	 * cost O(n*log(n)) because we are sorting a smaller array. thus exist n0 and c s.t.
-	 * O(n) + O(|B|log(|b|)) < c*n where |B| is the size of the array. thus this method is O(n).
+	 * this method gets all the points in the range, sorted according to the opposite of
+	 * the given axis. it does so by marking all the points in the opposite list that are
+	 * in the range, and than copy them according to there order in the opposite list to 
+	 * an array.
 	 */
 	
 
 	@Override
 	public Point[] getPointsInRangeOppAxis(int min, int max, Boolean axis) {
 		// TODO Auto-generated method stub
-		Point[] returnVal = this.getPointsInRangeRegAxis(min, max, axis);
-		if(axis)
-			Arrays.sort(returnVal, compY);
-		else
-			Arrays.sort(returnVal, compX);
-		return returnVal;
+		ThreeSidedNode<Point> start;
+		ThreeSidedNode<Point> end;
+		ThreeSidedNode<Point> pointer;
+		int counter=0;
+		if(axis){
+			Point minX = new Point(min,0);
+			Point maxX = new Point(max,0);
+			start= this.x.closestFromStart(minX);
+			end= this.x.closestFromEnd(maxX);
+			pointer= start;
+			while(pointer!=null && (this.compX.compare((Point)pointer.getData(),(Point)end.getData())<=0)){
+				counter++;
+				pointer.getTwin().marker=true;
+				pointer=pointer.getNext();
+			}
+			Point[] returnVal = new Point[counter];
+			ThreeSidedNode<Point> oppPointer=this.y.first;
+			int index=0;
+			while(oppPointer!=null){
+				if(oppPointer.marker){
+					returnVal[index]=(Point)oppPointer.getData();
+					index++;
+				}
+				oppPointer=oppPointer.getNext();
+			}
+			this.resetMarkers(false);
+			return returnVal;
+		}
+		else{
+			Point minY = new Point(0,min);
+			Point maxY = new Point(0,max);
+			start= this.y.closestFromStart(minY);
+			end= this.y.closestFromEnd(maxY);
+			pointer=start;
+			while(pointer!=null &&(this.compY.compare((Point)pointer.getData(),(Point)end.getData())<=0)){
+				counter++;
+				pointer.getTwin().marker=true;
+				pointer=pointer.getNext();
+			}
+			Point[] returnVal = new Point[counter];
+			ThreeSidedNode<Point> oppPointer=this.x.first;
+			int index=0;
+			while(oppPointer!=null){
+				if(oppPointer.marker){
+					returnVal[index]=(Point)oppPointer.getData();
+					index++;
+				}
+				oppPointer=oppPointer.getNext();
+			}
+			this.resetMarkers(true);
+			return returnVal;
+		}
+		
 	}
 	
+	/*
+	 *  *************resetMarkers**********************
+	 *  this method reset all the "marker" fields in a given list
+	 *  to false in order to use the "getPointsInRangeOppAxis"
+	 *  again.
+	 */
+
+	private void resetMarkers(boolean axis){
+		if(axis){
+			ThreeSidedNode<Point> xPointer=this.x.first;
+			while(xPointer!=null){
+				if(xPointer.marker)
+					xPointer.marker=false;
+				xPointer=xPointer.getNext();
+			}
+		}
+		else{
+			ThreeSidedNode<Point> yPointer=this.y.first;
+			while(yPointer!=null){
+				if(yPointer.marker)
+					yPointer.marker=false;
+				yPointer=yPointer.getNext();
+			}
+		}
+	}
 	
 	/*
 	 *  *************getDensity method**********************
@@ -173,7 +244,8 @@ public class DataStructure implements DT {
 	/*
 	 * *****************getMedian********************
 	 * going  threw the correct list and finding the 
-	 * median according to definition
+	 * median according to definition.
+	 * ---this method is to be used only in checking the assignment---
 	 */
 
 	@Override
@@ -194,6 +266,30 @@ public class DataStructure implements DT {
 		ans.setData((Point)mid.getData());
 		return ans;
 	}
+	
+
+	/*
+	 * *****************Median********************
+	 * going  threw the correct list and finding the 
+	 * median according to definition.
+	 * ---the method that should be used in actual programming---
+	 */
+	
+	private ThreeSidedNode<Point> Median(Boolean axis) {
+		// TODO Auto-generated method stub
+		int midIndex = this.x.getSize()/2;
+		ThreeSidedNode<Point> mid;
+		if(axis)
+			mid = this.x.first;
+		else
+			mid = this.y.first;
+		
+		while(midIndex>0){
+			mid = mid.getNext();
+			midIndex--;
+		}
+		return mid;
+	}
 
 	@Override
 	public Point[] nearestPairInStrip(Container container, int width,
@@ -201,22 +297,48 @@ public class DataStructure implements DT {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	private Point[] makeArray(int size){
+		Point[] newArray = new Point[size];
+		ThreeSidedNode<Point> pointer= this.x.first;
+		int i=0;
+		while(pointer!=null){
+			newArray[i]= (Point)pointer.getData();
+			i++;
+		}
+		return newArray;
+	}
 
 	@Override
 	public Point[] nearestPair() {
 		// TODO Auto-generated method stub
-		return null;
+		if(this.size()==2)
+			return this.makeArray(2);
+		else if(this.size()<2)
+			return null;
+		else{
+			if(this.getLargestAxis()){
+				ThreeSidedNode<Point> mid = this.Median(true);
+				return null;
+			}
+			else{
+				ThreeSidedNode<Point> mid = this.Median(false);
+				return null;
+			}
+		}
+	}
+	
+
+
+	public int size() {
+		// TODO Auto-generated method stub
+		return this.x.getSize();
 	}
 	
 	/*
 	 * ************ toString *************
 	 * give a description of the data in the data structure
 	 */
-
-	public int size() {
-		// TODO Auto-generated method stub
-		return this.x.getSize();
-	}
 	
 	@Override
 	public String toString() {
@@ -224,6 +346,9 @@ public class DataStructure implements DT {
 		return s;
 	}
 
+	private double distance(Point p1, Point p2){
+	        return Math.sqrt( Math.pow(p1.getX()-p2.getX(),2)    +Math.pow(p1.getY()-p2.getY(),2)    );
+	}
 
 
 	

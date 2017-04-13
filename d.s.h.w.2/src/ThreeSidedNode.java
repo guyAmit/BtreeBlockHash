@@ -4,6 +4,7 @@ public class ThreeSidedNode<T> {
 	private ThreeSidedNode next;
 	private ThreeSidedNode back;
 	private ThreeSidedNode Twin;
+	public boolean marker; // used in gerPointsInRangeOpp
 
 
 	
@@ -12,6 +13,7 @@ public class ThreeSidedNode<T> {
 	    this.data = data;
 	    this.next = next;
 	    this.back = back;
+	    this.marker=false;
 	}
      
 	public ThreeSidedNode(T data){

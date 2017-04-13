@@ -12,8 +12,8 @@ public class Main {
 	public static void main(String[] args) 
 	{
 		//testA();
-		//testB();
-		testC();
+		testB();
+		//testC();
 	}
 
 
