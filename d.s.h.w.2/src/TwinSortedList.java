@@ -63,35 +63,36 @@ public class TwinSortedList<T> {
 		 toReturn=this.first;
 	 }
 	 else{
-		 if(comp.compare(data, (T)this.first.getData())<1){
+		 if(comp.compare(data, (T)this.first.getData())==-1){
 			 ThreeSidedNode newLink= new ThreeSidedNode(data);
 			 newLink.setNext(first);
 			 this.first.setBack(newLink);
 			 this.first=newLink;
-			 toReturn= this.first;
+			 toReturn= newLink;
+		 }
+		 else if(comp.compare(data, (T)this.last.getData())==1){
+			 ThreeSidedNode newLink= new ThreeSidedNode(data);
+			 newLink.setBack(this.last);
+			 this.last.setNext(newLink);
+			 this.last=newLink;
+			 toReturn=newLink;
 		 }
 		 else{
 			 ThreeSidedNode temp = first;
-			 while(temp!=null && comp.compare((T)temp.getData(), data)<1){
+			 while(temp!=null && comp.compare(data,(T)temp.getData())==1){
 				 temp=temp.getNext();
 			 }
-			 if(temp==null){
-				 ThreeSidedNode newLink= new ThreeSidedNode(data);
-				 this.last.setNext(newLink);
-				 newLink.setBack(this.last);
-				 this.last=newLink;
-				 toReturn =this.last;
-				}
-			 else{
-				 ThreeSidedNode prev = temp.getBack();
-				 ThreeSidedNode newLink= new ThreeSidedNode(data);
-				 prev.setNext(newLink);
-				 newLink.setNext(temp);
-				 toReturn=temp;
+			 ThreeSidedNode newLink= new ThreeSidedNode(data);
+			 ThreeSidedNode<T> back=temp.getBack();
+			 back.setNext(newLink);
+			 newLink.setBack(back);
+			 newLink.setNext(temp);
+			 temp.setBack(newLink);
+			 toReturn=newLink;
 			 }
 		 }
 		 
-	 }
+	 
 	 this.size++;
 	 return toReturn;
   }

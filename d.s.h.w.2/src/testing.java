@@ -18,8 +18,10 @@ public class testing {
 		System.out.println("ds size:"+ds.size());
 		System.out.println("density:"+ds.getDensity());
 		System.out.println("largest axis:"+ds.getLargestAxis());
-		System.out.println("get points check x:"+Arrays.toString(ds.getPointsInRangeRegAxis(-4, 2, true)));
-		System.out.println("get points check x:"+Arrays.toString(ds.getPointsInRangeRegAxis(-4, 2, false)));
+		System.out.println("get points check x:"+Arrays.toString(ds.getPointsInRangeRegAxis(-9, -1, true)));
+		System.out.println("get points check y:"+Arrays.toString(ds.getPointsInRangeRegAxis(-3, 2, false)));
+		System.out.println("get points opp check, axis=x:"+Arrays.toString(ds.getPointsInRangeOppAxis(-9, -1, true)));
+		System.out.println("get points opp check, axis=y:"+Arrays.toString(ds.getPointsInRangeOppAxis(-3, 2, false)));
 	}
 
 }

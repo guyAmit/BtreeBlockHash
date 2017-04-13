@@ -51,26 +51,32 @@ public class DataStructure implements DT {
 		// TODO Auto-generated method stub
 		ThreeSidedNode<Point> start;
 		ThreeSidedNode<Point> end;
+		ThreeSidedNode<Point> pointer;
+		int counter=0;
 		if(axis){
 			Point minX = new Point(min,0);
 			Point maxX = new Point(max,0);
 			start= this.x.closestFromStart(minX);
 			end= this.x.closestFromEnd(maxX);
+			pointer= start;
+			while(pointer!=null && (this.compX.compare((Point)pointer.getData(),(Point)end.getData())<=0)){
+				counter++;
+				pointer=pointer.getNext();
+			}
+			pointer=start;
 		}
 		else{
 			Point minY = new Point(0,min);
 			Point maxY = new Point(0,max);
 			start= this.y.closestFromStart(minY);
 			end= this.y.closestFromEnd(maxY);
+			pointer=start;
+			while(pointer!=null &&(this.compY.compare((Point)pointer.getData(),(Point)end.getData())<=0)){
+				counter++;
+				pointer=pointer.getNext();
+			}
+			pointer=start;
 		}
-		int counter=0;
-		ThreeSidedNode<Point> pointer= start;
-		while(this.compX.compare((Point)pointer.getData(),(Point)end.getData())!=0 & 
-				this.compY.compare((Point)pointer.getData(), (Point)end.getData())!=0){
-			counter++;
-			pointer=pointer.getNext();
-		}
-		pointer=start;
 		Point[] returnVal = new Point[counter];
 		for (int i = 0; i < returnVal.length; i++) {
 			returnVal[i]=(Point)pointer.getData();
