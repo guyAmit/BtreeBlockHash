@@ -279,12 +279,75 @@ public class DataStructure implements DT {
 		}
 		return mid;
 	}
+	
+	/*
+	 * *****************nearestPairInStrip********************
+	 * this method first copy all the points into an array,
+	 * then sort it according to the  opposite axis.
+	 *  then find the closest pair using what is seems like an
+	 *  O(n^2) algorithm, but actually it it has been proven that
+	 *  the inner loop runs at most 6 times, which means it is an
+	 *  O(n) algorithm 
+	 */
 
 	@Override
-	public Point[] nearestPairInStrip(Container container, int width,
-			Boolean axis) {
+	public Point[] nearestPairInStrip(Container container, Double width, Boolean axis) {
 		// TODO Auto-generated method stub
-		return null;
+		if(axis){
+			Container start = container;	
+			Point leftVal =new Point((int)(container.getData().getX()-(width)/2), container.getData().getY());
+			while(compX.compare(start.getData(), leftVal)>=0){
+				container=container.getNext();
+			}
+			Container end = container;	
+			Point rightVal =new Point((int)(container.getData().getX()+(width)/2), container.getData().getY());
+			while(compX.compare(start.getData(), leftVal)<=0){
+				container=container.getNext();
+			}
+			Point[] array = this.createArrayFromPointers(start, end);
+			if(array.length<2) return null;
+			Arrays.sort(array, compY);
+			double min = width/2;
+			Point[] result = new Point[2];
+			for (int i = 0; i < array.length; ++i) {
+				for (int j = i+1; j < array.length && (array[j].getY()-array[i].getY())<width/2; j++) {
+					if(this.distance(array[i], array[j])<min){
+						min=distance(array[i], array[j]);
+						result[0]=array[i];
+						result[1]=array[j];
+					}
+				}
+			}
+			return result;
+		}
+		else{
+			Container start = container;	
+			Point leftVal =new Point( container.getData().getX(),(int)(container.getData().getY()-(width)/2));
+			while(compX.compare(start.getData(), leftVal)>=0){
+				container=container.getNext();
+			}
+			Container end = container;	
+			Point rightVal =new Point(container.getData().getX(),(int)(container.getData().getY()+(width)/2));
+			while(compX.compare(start.getData(), leftVal)<=0){
+				container=container.getNext();
+			}
+			Point[] array = this.createArrayFromPointers(start, end);
+			if(array.length<2) return null;
+			Arrays.sort(array, compX);
+			double min = width/2;
+			Point[] result = new Point[2];
+			for (int i = 0; i < array.length; ++i) {
+				for (int j = i+1; j < array.length && (array[j].getX()-array[i].getX())<width/2; j++) {
+					if(this.distance(array[i], array[j])<min){
+						min=distance(array[i], array[j]);
+						result[0]=array[i];
+						result[1]=array[j];
+					}
+				}
+			}
+			return result;
+		}
+		
 	}
 	
 
@@ -344,6 +407,7 @@ public class DataStructure implements DT {
 				}
 			}
 		}
+		return null;
 	}
 	
 	/*
@@ -357,11 +421,11 @@ public class DataStructure implements DT {
 		marge[1]=smaller[1];
 		marge[2]=bigger[0];
 		marge[3] = bigger[1]; 
-		double dMin =-1;         //the brute force algorithm
+		double dMin = Double.POSITIVE_INFINITY;         //the brute force algorithm
 		for (int i = 0; i < marge.length-1; i++) {
 			for (int j = i+1; j < marge.length; j++) {
 				double dis=this.distance(marge[i],marge[j]);
-				if(dis<dMin | dMin==-1){
+				if(dis<dMin){
 					dMin=dis;
 					result[0]=marge[i];
 					result[1]=marge[j];

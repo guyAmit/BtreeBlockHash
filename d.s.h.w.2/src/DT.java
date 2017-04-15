@@ -25,7 +25,7 @@ public interface DT
 	Container getMedian(Boolean axis);
 	
 	//O(|B|) - B is the number of points in the strip
-	Point[]	nearestPairInStrip(Container container, int width, Boolean axis);
+	Point[]	nearestPairInStrip(Container container, Double width, Boolean axis);
 
 	//??? - you need to compute the running time of this funtion.
 	Point[]	nearestPair();
