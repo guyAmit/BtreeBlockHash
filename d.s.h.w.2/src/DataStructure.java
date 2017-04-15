@@ -19,6 +19,22 @@ public class DataStructure implements DT {
 		this.x.SetTwin(y);
 		this.y.SetTwin(x);
 	}
+	
+	/*
+	 * ************ copying constructor ****************
+	 * this constructor receive two nodes from an previous dataStracture, and create a
+	 * new Data Structure just from the nodes between the range given by "start" and "end".
+	 * the copying constructor will be used in nearest pair.
+	 */
+	
+	public DataStructure(ThreeSidedNode<Point> start,ThreeSidedNode<Point> end){
+		this();		
+		ThreeSidedNode<Point> pointer=start;
+		while(((Point)pointer.getData()).getX()!=((Point)end.getData()).getX() &
+				((Point)pointer.getData()).getY()!=((Point)end.getData()).getY()){
+			this.addPoint((Point)pointer.getData());
+		}
+	}
 
 	/*
 	 * ************ addPoint ****************
@@ -298,37 +314,94 @@ public class DataStructure implements DT {
 		return null;
 	}
 	
-	private Point[] makeArray(int size){
-		Point[] newArray = new Point[size];
-		ThreeSidedNode<Point> pointer= this.x.first;
-		int i=0;
-		while(pointer!=null){
-			newArray[i]= (Point)pointer.getData();
-			i++;
-		}
-		return newArray;
-	}
+
+
+	
 
 	@Override
 	public Point[] nearestPair() {
 		// TODO Auto-generated method stub
 		if(this.size()==2)
-			return this.makeArray(2);
+			return this.makeArrayOfSize(2);
 		else if(this.size()<2)
 			return null;
 		else{
+			Point[] result;
 			if(this.getLargestAxis()){
 				ThreeSidedNode<Point> mid = this.Median(true);
-				return null;
+				DataStructure smallerHalf = new DataStructure(this.x.first,mid);
+				DataStructure biggerHalf = new DataStructure(mid.getNext(),this.x.last);
+				Point[] smallerPair = smallerHalf.nearestPair();
+				Point[] biggerPair = biggerHalf.nearestPair();
+				if(smallerPair==null)
+					result=biggerPair;
+				else if(biggerPair==null)
+					result=smallerPair;
+				else{
+					result=this.nearestPair(smallerPair, biggerPair);
+					double minDis=this.distance(result[0], result[1]);
+					Point[] midStrip=this.nearestPairInStrip(mid, 2*minDis, true);
+					if(midStrip!=null)
+						return midStrip;
+					else
+						return result;
+					
+				}
+				
 			}
 			else{
 				ThreeSidedNode<Point> mid = this.Median(false);
-				return null;
+				DataStructure smallerHalf = new DataStructure(this.y.first,mid);
+				DataStructure biggerHalf = new DataStructure(mid.getNext(),this.y.last);
+				Point[] smallerPair = smallerHalf.nearestPair();
+				Point[] biggerPair = biggerHalf.nearestPair();
+				if(smallerPair==null)
+					result=biggerPair;
+				else if(biggerPair==null)
+					result=smallerPair;
+				else{
+					result=this.nearestPair(smallerPair, biggerPair);
+					double minDis=this.distance(result[0], result[1]);
+					Point[] midStrip=this.nearestPairInStrip(mid, 2*minDis, true);
+					if(midStrip!=null)
+						return midStrip;
+					else
+						return result;
+					
+				}
 			}
 		}
 	}
 	
+	/*
+	 * *****************NearestPair-brute force for  two arrays of size 2********************
+	 * Comparing all the pairs and returning the "nearest pair"
+	 */
+	private Point[] nearestPair(Point[] smaller,Point[] bigger){
+		Point[] result =new Point[2];
+		Point[] marge = new Point[4]; //Merging into one array
+		marge[0]=smaller[0];
+		marge[1]=smaller[1];
+		marge[2]=bigger[0];
+		marge[3] = bigger[1]; 
+		double dMin =-1;         //the brute force algorithm
+		for (int i = 0; i < marge.length-1; i++) {
+			for (int j = i+1; j < marge.length; j++) {
+				double dis=this.distance(marge[i],marge[j]);
+				if(dis<dMin | dMin==-1){
+					dMin=dis;
+					result[0]=marge[i];
+					result[1]=marge[j];
+				}	
+			}
+		}
+		return result;
+	}
 
+	/*
+	 * *****************size********************
+	 * returns the size of the DataStarcture
+	 */
 
 	public int size() {
 		// TODO Auto-generated method stub
@@ -346,13 +419,46 @@ public class DataStructure implements DT {
 		return s;
 	}
 
+	/*
+	 * ************ assisting method *************
+	 * --distance between points
+	 * --creating an array from pointers
+	 * --creating an array of  the "size" first points in the data structure according to X
+	 */
+	
+	
 	private double distance(Point p1, Point p2){
-	        return Math.sqrt( Math.pow(p1.getX()-p2.getX(),2)    +Math.pow(p1.getY()-p2.getY(),2)    );
+	        return Math.sqrt( Math.pow(p1.getX()-p2.getX(),2)+Math.pow(p1.getY()-p2.getY(),2));
 	}
 
+	private Point[] createArrayFromPointers(ThreeSidedNode<Point> start,ThreeSidedNode<Point> end){
+		int counter=0;
+		ThreeSidedNode<Point> pointer=start;
+		while(((Point)pointer.getData()).getX()!=((Point)end.getData()).getX() &
+				((Point)pointer.getData()).getY()!=((Point)end.getData()).getY()){
+			counter++;
+			pointer=pointer.getNext();
+		}
+		pointer=start;
+		Point[] returnVal = new Point[counter];
+		for (int i = 0; i < returnVal.length; i++) {
+			returnVal[i]=(Point)pointer.getData();
+			pointer=pointer.getNext();
+		}
+		return returnVal;
+	}
 
+	private Point[] makeArrayOfSize(int size){
+		Point[] newArray = new Point[size];
+		ThreeSidedNode<Point> pointer= this.x.first;
+		int i=0;
+		while(pointer!=null){
+			newArray[i]= (Point)pointer.getData();
+			i++;
+		}
+		return newArray;
+	}
 	
-	//TODO: add members, methods, etc.
 	
 }
 
