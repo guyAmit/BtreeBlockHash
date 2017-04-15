@@ -1,21 +1,21 @@
 import java.util.Comparator;
 
-public class TwinSortedList<T> {
+public class TwinSortedList {
 	
-  public ThreeSidedNode first;
-  public ThreeSidedNode last;
-  private Comparator<T> comp;
+  public Container first;
+  public Container last;
+  private Comparator comp;
   private int size;
-  private TwinSortedList<T> twinList;
+  private TwinSortedList twinList;
   
-  public TwinSortedList(Comparator<T> comp){
+  public TwinSortedList(Comparator comp){
 	  this.first=null;
 	  this.last=null;
 	  this.comp=comp;
 	  this.size=0;
   }
-  
-  public void SetTwin(TwinSortedList<T> twinList){
+
+  public void SetTwin(TwinSortedList twinList){
 	  this.twinList=twinList;
   }
   
@@ -26,17 +26,17 @@ public class TwinSortedList<T> {
    * given the information about the sided the item is closest to.
    */
   
-  public ThreeSidedNode<T> closestFromStart(T val){
-	  ThreeSidedNode<T> startPointer =this.first;
-	  while(comp.compare(val, (T)startPointer.getData())==1){
+  public Container closestFromStart(Point val){
+	  Container startPointer =this.first;
+	  while(comp.compare(val, startPointer.getData())==1){
 		  startPointer=startPointer.getNext();
 	  }
 	  return startPointer;
   }
   
-  public ThreeSidedNode<T> closestFromEnd(T val){
-	  ThreeSidedNode<T> endPointer=this.last;
-	  while(comp.compare(val, (T)endPointer.getData())==-1){
+  public Container closestFromEnd(Point val){
+	  Container endPointer=this.last;
+	  while(comp.compare(val, endPointer.getData())==-1){
 		  endPointer=endPointer.getBack();
 	  }
 	  return endPointer;
@@ -55,35 +55,35 @@ public class TwinSortedList<T> {
    * the method also update the size of the list
    */
   
-  public ThreeSidedNode add(T data){
-	 ThreeSidedNode<T> toReturn =null; 
+  public Container add(Point data){
+	Container toReturn =null; 
 	 if(this.first==null){
-		 this.first=new ThreeSidedNode(data);
+		 this.first=new Container(data);
 		 this.last=first;
 		 toReturn=this.first;
 	 }
 	 else{
-		 if(comp.compare(data, (T)this.first.getData())==-1){
-			 ThreeSidedNode<T>  newLink= new ThreeSidedNode(data);
+		 if(comp.compare(data,this.first.getData())==-1){
+			Container  newLink= new Container(data);
 			 newLink.setNext(first);
 			 this.first.setBack(newLink);
 			 this.first=newLink;
 			 toReturn= newLink;
 		 }
-		 else if(comp.compare(data, (T)this.last.getData())==1){
-			 ThreeSidedNode<T>  newLink= new ThreeSidedNode(data);
+		 else if(comp.compare(data, this.last.getData())==1){
+			Container  newLink= new Container(data);
 			 newLink.setBack(this.last);
 			 this.last.setNext(newLink);
 			 this.last=newLink;
 			 toReturn=newLink;
 		 }
 		 else{
-			 ThreeSidedNode temp = first;
-			 while(temp!=null && comp.compare(data,(T)temp.getData())==1){
+			 Container temp = first;
+			 while(temp!=null && comp.compare(data,temp.getData())==1){
 				 temp=temp.getNext();
 			 }
-			 ThreeSidedNode<T>  newLink= new ThreeSidedNode(data);
-			 ThreeSidedNode<T> back=temp.getBack();
+			Container  newLink= new Container(data);
+			Container back=temp.getBack();
 			 back.setNext(newLink);
 			 newLink.setBack(back);
 			 newLink.setNext(temp);
@@ -112,16 +112,16 @@ public class TwinSortedList<T> {
    * is independent, this method will course an exception
  */
   
-  public void delete(T max, T min){
+  public void delete(Point max, Point min){
 	  int counter=0; //counter for counting how many items are we deleting
-	  ThreeSidedNode<T>  startPointer =this.first;
-	  while(comp.compare(min, (T)startPointer.getData())==1){
+	 Container  startPointer =this.first;
+	  while(comp.compare(min, startPointer.getData())==1){
 		  this.deleteInTwinList(startPointer);
 		  startPointer=startPointer.getNext();
 		  counter++;
 	  }
-	  ThreeSidedNode<T>  endPointer=this.last;
-	  while(comp.compare(max, (T)endPointer.getData())==-1){
+	 Container  endPointer=this.last;
+	  while(comp.compare(max, endPointer.getData())==-1){
 		  this.deleteInTwinList(endPointer);
 		  endPointer=endPointer.getBack();
 		  counter++;
@@ -139,11 +139,11 @@ public class TwinSortedList<T> {
    * simple algoritem that reach the twin list and remove the data of "otherNode"
    * from it.
    */
-  private void deleteInTwinList(ThreeSidedNode otherNode){
-	  ThreeSidedNode<T>  other = otherNode.getTwin();
+  private void deleteInTwinList(Container otherNode){
+	 Container  other = otherNode.getTwin();
 	  if(other.getBack()!=null & other.getNext()!=null){ //Inner part of the list
-		  ThreeSidedNode<T>  back=other.getBack();
-		  ThreeSidedNode<T>  next= other.getNext();
+		 Container  back=other.getBack();
+		 Container  next= other.getNext();
 		  back.setNext(next);
 		  next.setBack(back);
 	  }
@@ -151,7 +151,7 @@ public class TwinSortedList<T> {
 		  this.twinList.first=other.getNext();
 		  this.twinList.first.setBack(null);
 	  }
-	  else{//other.next==null => at ther end of list
+	  else{//other.next==null => at the end of list
 		  this.twinList.last=other.getBack();
 		  this.twinList.last.setNext(null);
 	  }
@@ -170,7 +170,7 @@ public class TwinSortedList<T> {
   @Override
   public String toString() {
 	String s ="SortedList: [ ";
-	ThreeSidedNode<T>  temp= first;
+	Container temp= first;
 	while (temp!=null){
 		s+=temp.getData().toString()+" , ";
 		temp=temp.getNext();

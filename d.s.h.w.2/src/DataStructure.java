@@ -2,8 +2,8 @@ import java.util.Arrays;
 
 public class DataStructure implements DT {
 
-	private TwinSortedList<Point> x; //list sorted according to the x value's of the points
-	private TwinSortedList<Point> y; //list sorted according to the y value's of the points
+	private TwinSortedList x; //list sorted according to the x value's of the points
+	private TwinSortedList y; //list sorted according to the y value's of the points
     private PonintsYComperator compY;
     private PonintsXComperator compX;
     
@@ -14,8 +14,8 @@ public class DataStructure implements DT {
 		//TODO
 		this.compX = new PonintsXComperator();
 		this.compY = new PonintsYComperator();
-		this.x=new TwinSortedList<Point>(compX);
-		this.y = new TwinSortedList<Point>(compY);
+		this.x=new TwinSortedList(compX);
+		this.y = new TwinSortedList(compY);
 		this.x.SetTwin(y);
 		this.y.SetTwin(x);
 	}
@@ -27,12 +27,12 @@ public class DataStructure implements DT {
 	 * the copying constructor will be used in nearest pair.
 	 */
 	
-	public DataStructure(ThreeSidedNode<Point> start,ThreeSidedNode<Point> end){
+	public DataStructure(Container start,Container end){
 		this();		
-		ThreeSidedNode<Point> pointer=start;
-		while(((Point)pointer.getData()).getX()!=((Point)end.getData()).getX() &
-				((Point)pointer.getData()).getY()!=((Point)end.getData()).getY()){
-			this.addPoint((Point)pointer.getData());
+		Container pointer=start;
+		while((pointer.getData()).getX()!=(end.getData()).getX() &
+				(pointer.getData()).getY()!=(end.getData()).getY()){
+			this.addPoint(pointer.getData());
 		}
 	}
 
@@ -47,8 +47,8 @@ public class DataStructure implements DT {
 	@Override
 	public void addPoint(Point point) {
 		// TODO Auto-generated method stub
-		ThreeSidedNode xLink = this.x.add(point);
-		ThreeSidedNode yLink = this.y.add(point);
+		Container xLink = this.x.add(point);
+		Container yLink = this.y.add(point);
 		yLink.setTwin(xLink);
 		xLink.setTwin(yLink);
 	}
@@ -65,9 +65,9 @@ public class DataStructure implements DT {
 	@Override
 	public Point[] getPointsInRangeRegAxis(int min, int max, Boolean axis) {
 		// TODO Auto-generated method stub
-		ThreeSidedNode<Point> start;
-		ThreeSidedNode<Point> end;
-		ThreeSidedNode<Point> pointer;
+		Container start;
+		Container end;
+		Container pointer;
 		int counter=0;
 		if(axis){
 			Point minX = new Point(min,0);
@@ -75,7 +75,7 @@ public class DataStructure implements DT {
 			start= this.x.closestFromStart(minX);
 			end= this.x.closestFromEnd(maxX);
 			pointer= start;
-			while(pointer!=null && (this.compX.compare((Point)pointer.getData(),(Point)end.getData())<=0)){
+			while(pointer!=null && (this.compX.compare(pointer.getData(),end.getData())<=0)){
 				counter++;
 				pointer=pointer.getNext();
 			}
@@ -87,7 +87,7 @@ public class DataStructure implements DT {
 			start= this.y.closestFromStart(minY);
 			end= this.y.closestFromEnd(maxY);
 			pointer=start;
-			while(pointer!=null &&(this.compY.compare((Point)pointer.getData(),(Point)end.getData())<=0)){
+			while(pointer!=null &&(this.compY.compare(pointer.getData(),end.getData())<=0)){
 				counter++;
 				pointer=pointer.getNext();
 			}
@@ -95,7 +95,7 @@ public class DataStructure implements DT {
 		}
 		Point[] returnVal = new Point[counter];
 		for (int i = 0; i < returnVal.length; i++) {
-			returnVal[i]=(Point)pointer.getData();
+			returnVal[i]=pointer.getData();
 			pointer=pointer.getNext();
 		}
 		return returnVal;
@@ -114,9 +114,9 @@ public class DataStructure implements DT {
 	@Override
 	public Point[] getPointsInRangeOppAxis(int min, int max, Boolean axis) {
 		// TODO Auto-generated method stub
-		ThreeSidedNode<Point> start;
-		ThreeSidedNode<Point> end;
-		ThreeSidedNode<Point> pointer;
+		Container start;
+		Container end;
+		Container pointer;
 		int counter=0;
 		if(axis){
 			Point minX = new Point(min,0);
@@ -124,17 +124,17 @@ public class DataStructure implements DT {
 			start= this.x.closestFromStart(minX);
 			end= this.x.closestFromEnd(maxX);
 			pointer= start;
-			while(pointer!=null && (this.compX.compare((Point)pointer.getData(),(Point)end.getData())<=0)){
+			while(pointer!=null && (this.compX.compare(pointer.getData(),end.getData())<=0)){
 				counter++;
 				pointer.getTwin().marker=true;
 				pointer=pointer.getNext();
 			}
 			Point[] returnVal = new Point[counter];
-			ThreeSidedNode<Point> oppPointer=this.y.first;
+			Container oppPointer=this.y.first;
 			int index=0;
 			while(oppPointer!=null){
 				if(oppPointer.marker){
-					returnVal[index]=(Point)oppPointer.getData();
+					returnVal[index]=oppPointer.getData();
 					index++;
 				}
 				oppPointer=oppPointer.getNext();
@@ -148,17 +148,17 @@ public class DataStructure implements DT {
 			start= this.y.closestFromStart(minY);
 			end= this.y.closestFromEnd(maxY);
 			pointer=start;
-			while(pointer!=null &&(this.compY.compare((Point)pointer.getData(),(Point)end.getData())<=0)){
+			while(pointer!=null &&(this.compY.compare(pointer.getData(),end.getData())<=0)){
 				counter++;
 				pointer.getTwin().marker=true;
 				pointer=pointer.getNext();
 			}
 			Point[] returnVal = new Point[counter];
-			ThreeSidedNode<Point> oppPointer=this.x.first;
+			Container oppPointer=this.x.first;
 			int index=0;
 			while(oppPointer!=null){
 				if(oppPointer.marker){
-					returnVal[index]=(Point)oppPointer.getData();
+					returnVal[index]=oppPointer.getData();
 					index++;
 				}
 				oppPointer=oppPointer.getNext();
@@ -178,7 +178,7 @@ public class DataStructure implements DT {
 
 	private void resetMarkers(boolean axis){
 		if(axis){
-			ThreeSidedNode<Point> xPointer=this.x.first;
+			Container xPointer=this.x.first;
 			while(xPointer!=null){
 				if(xPointer.marker)
 					xPointer.marker=false;
@@ -186,7 +186,7 @@ public class DataStructure implements DT {
 			}
 		}
 		else{
-			ThreeSidedNode<Point> yPointer=this.y.first;
+			Container yPointer=this.y.first;
 			while(yPointer!=null){
 				if(yPointer.marker)
 					yPointer.marker=false;
@@ -206,14 +206,14 @@ public class DataStructure implements DT {
 	@Override
 	public double getDensity() {
 		// TODO Auto-generated method stub
-		ThreeSidedNode maxX = this.x.last;
-		ThreeSidedNode maxY=this.y.last;
-		ThreeSidedNode minX  =this.x.first;
-		ThreeSidedNode minY = this.y.first;
-		double Xmax =((Point)maxX.getData()).getX();
-	    double Ymax = ((Point)maxY.getData()).getY();
-		double Xmin = ((Point)minX.getData()).getX();
-		double Ymin = ((Point)minY.getData()).getY();
+		Container maxX = this.x.last;
+		Container maxY=this.y.last;
+		Container minX  =this.x.first;
+		Container minY = this.y.first;
+		double Xmax =(maxX.getData()).getX();
+	    double Ymax = (maxY.getData()).getY();
+		double Xmin = (minX.getData()).getX();
+		double Ymin = (minY.getData()).getY();
 		return (this.x.getSize()/((Xmax-Xmin)*(Ymax-Ymin)));
 	}
 	
@@ -229,12 +229,12 @@ public class DataStructure implements DT {
 	@Override
 	public Boolean getLargestAxis() {
 		// TODO Auto-generated method stub
-		ThreeSidedNode maxX = this.x.last;
-		ThreeSidedNode maxY=this.y.last;
-		ThreeSidedNode minX  =this.x.first;
-		ThreeSidedNode minY = this.y.first;
-		return ((Point)maxX.getData()).getX()-((Point)minX.getData()).getX()>=
-		((Point)maxY.getData()).getY()-((Point)maxY.getData()).getY();
+		Container maxX = this.x.last;
+		Container maxY=this.y.last;
+		Container minX  =this.x.first;
+		Container minY = this.y.first;
+		return (maxX.getData()).getX()-(minX.getData()).getX()>=
+		(maxY.getData()).getY()-(maxY.getData()).getY();
 	}
 	
 	/*
@@ -261,40 +261,13 @@ public class DataStructure implements DT {
 	 * *****************getMedian********************
 	 * going  threw the correct list and finding the 
 	 * median according to definition.
-	 * ---this method is to be used only in checking the assignment---
 	 */
 
 	@Override
 	public Container getMedian(Boolean axis) {
 		// TODO Auto-generated method stub
 		int midIndex = this.x.getSize()/2;
-		ThreeSidedNode<Point> mid;
-		if(axis)
-			mid = this.x.first;
-		else
-			mid = this.y.first;
-		
-		while(midIndex>0){
-			mid = mid.getNext();
-			midIndex--;
-		}
-		Container ans= new Container();
-		ans.setData((Point)mid.getData());
-		return ans;
-	}
-	
-
-	/*
-	 * *****************Median********************
-	 * going  threw the correct list and finding the 
-	 * median according to definition.
-	 * ---the method that should be used in actual programming---
-	 */
-	
-	private ThreeSidedNode<Point> Median(Boolean axis) {
-		// TODO Auto-generated method stub
-		int midIndex = this.x.getSize()/2;
-		ThreeSidedNode<Point> mid;
+		Container mid;
 		if(axis)
 			mid = this.x.first;
 		else
@@ -328,7 +301,7 @@ public class DataStructure implements DT {
 		else{
 			Point[] result;
 			if(this.getLargestAxis()){
-				ThreeSidedNode<Point> mid = this.Median(true);
+				Container mid = this.getMedian(true);
 				DataStructure smallerHalf = new DataStructure(this.x.first,mid);
 				DataStructure biggerHalf = new DataStructure(mid.getNext(),this.x.last);
 				Point[] smallerPair = smallerHalf.nearestPair();
@@ -350,7 +323,7 @@ public class DataStructure implements DT {
 				
 			}
 			else{
-				ThreeSidedNode<Point> mid = this.Median(false);
+				Container mid = this.getMedian(false);
 				DataStructure smallerHalf = new DataStructure(this.y.first,mid);
 				DataStructure biggerHalf = new DataStructure(mid.getNext(),this.y.last);
 				Point[] smallerPair = smallerHalf.nearestPair();
@@ -431,18 +404,18 @@ public class DataStructure implements DT {
 	        return Math.sqrt( Math.pow(p1.getX()-p2.getX(),2)+Math.pow(p1.getY()-p2.getY(),2));
 	}
 
-	private Point[] createArrayFromPointers(ThreeSidedNode<Point> start,ThreeSidedNode<Point> end){
+	private Point[] createArrayFromPointers(Container start,Container end){
 		int counter=0;
-		ThreeSidedNode<Point> pointer=start;
-		while(((Point)pointer.getData()).getX()!=((Point)end.getData()).getX() &
-				((Point)pointer.getData()).getY()!=((Point)end.getData()).getY()){
+		Container pointer=start;
+		while((pointer.getData()).getX()!=(end.getData()).getX() &
+				(pointer.getData()).getY()!=(end.getData()).getY()){
 			counter++;
 			pointer=pointer.getNext();
 		}
 		pointer=start;
 		Point[] returnVal = new Point[counter];
 		for (int i = 0; i < returnVal.length; i++) {
-			returnVal[i]=(Point)pointer.getData();
+			returnVal[i]=pointer.getData();
 			pointer=pointer.getNext();
 		}
 		return returnVal;
@@ -450,10 +423,10 @@ public class DataStructure implements DT {
 
 	private Point[] makeArrayOfSize(int size){
 		Point[] newArray = new Point[size];
-		ThreeSidedNode<Point> pointer= this.x.first;
+		Container pointer= this.x.first;
 		int i=0;
 		while(pointer!=null){
-			newArray[i]= (Point)pointer.getData();
+			newArray[i]= pointer.getData();
 			i++;
 		}
 		return newArray;
