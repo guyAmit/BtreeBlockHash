@@ -11,8 +11,8 @@ public class Main {
 
 	public static void main(String[] args) 
 	{
-		testA();
-		//testB();
+		///testA();
+		testB();
 		//testC();
 	}
 
@@ -1158,7 +1158,20 @@ public class Main {
 
     private static void testC() 
 	{
-	//Add your own tests here
+        Point[] points = generatePointsForTestCaseB();
+
+        PointCompareX comparatorX = new PointCompareX();
+        PointCompareY comparatorY = new PointCompareY();
+        int testCounter=0;
+
+        DT dt=new DataStructure();
+        for (int i=0;i<5;i++) 
+        {
+            dt.addPoint(points[i]);
+        }
+        Point[] resPoints = dt.nearestPair();
+        System.out.println(Arrays.deepToString(resPoints));
+        
     	}
 
 

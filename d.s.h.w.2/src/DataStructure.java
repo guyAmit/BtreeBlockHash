@@ -33,7 +33,9 @@ public class DataStructure implements DT {
 		while((pointer.getData()).getX()!=(end.getData()).getX() &
 				(pointer.getData()).getY()!=(end.getData()).getY()){
 			this.addPoint(pointer.getData());
+			pointer=pointer.getNext();
 		}
+		this.addPoint(pointer.getData());
 	}
 
 	/*
@@ -272,10 +274,8 @@ public class DataStructure implements DT {
 			mid = this.x.first;
 		else
 			mid = this.y.first;
-		
-		while(midIndex>0){
-			mid = mid.getNext();
-			midIndex--;
+		for (int i = 0; i < midIndex; i++) {
+			mid=mid.getNext();
 		}
 		return mid;
 	}
@@ -296,13 +296,13 @@ public class DataStructure implements DT {
 		if(axis){
 			Container start = container;	
 			Point leftVal =new Point((int)(container.getData().getX()-(width)/2), container.getData().getY());
-			while(compX.compare(start.getData(), leftVal)>=0){
-				container=container.getNext();
+			while(start.getBack()!=null && compX.compare(start.getData(), leftVal)>=0){
+				start=start.getBack();
 			}
 			Container end = container;	
 			Point rightVal =new Point((int)(container.getData().getX()+(width)/2), container.getData().getY());
-			while(compX.compare(start.getData(), leftVal)<=0){
-				container=container.getNext();
+			while(end.getNext()!=null && compX.compare(start.getData(), rightVal)<=0){
+				end=end.getNext();
 			}
 			Point[] array = this.createArrayFromPointers(start, end);
 			if(array.length<2) return null;
@@ -323,13 +323,13 @@ public class DataStructure implements DT {
 		else{
 			Container start = container;	
 			Point leftVal =new Point( container.getData().getX(),(int)(container.getData().getY()-(width)/2));
-			while(compX.compare(start.getData(), leftVal)>=0){
-				container=container.getNext();
+			while(start!=null && compX.compare(start.getData(), leftVal)>=0){
+				start=start.getBack();
 			}
 			Container end = container;	
 			Point rightVal =new Point(container.getData().getX(),(int)(container.getData().getY()+(width)/2));
 			while(compX.compare(start.getData(), leftVal)<=0){
-				container=container.getNext();
+			     end=end.getNext();
 			}
 			Point[] array = this.createArrayFromPointers(start, end);
 			if(array.length<2) return null;
@@ -377,13 +377,13 @@ public class DataStructure implements DT {
 					result=this.nearestPair(smallerPair, biggerPair);
 					double minDis=this.distance(result[0], result[1]);
 					Point[] midStrip=this.nearestPairInStrip(mid, 2*minDis, true);
-					if(midStrip!=null)
-						return midStrip;
-					else
+					if(midStrip[0]==null & midStrip[1]==null)
 						return result;
+					else
+						return midStrip;
 					
 				}
-				
+				return result;
 			}
 			else{
 				Container mid = this.getMedian(false);
@@ -405,9 +405,9 @@ public class DataStructure implements DT {
 						return result;
 					
 				}
+				return result;
 			}
 		}
-		return null;
 	}
 	
 	/*
@@ -476,6 +476,7 @@ public class DataStructure implements DT {
 			counter++;
 			pointer=pointer.getNext();
 		}
+		counter++;
 		pointer=start;
 		Point[] returnVal = new Point[counter];
 		for (int i = 0; i < returnVal.length; i++) {
@@ -492,6 +493,7 @@ public class DataStructure implements DT {
 		while(pointer!=null){
 			newArray[i]= pointer.getData();
 			i++;
+			pointer=pointer.getNext();
 		}
 		return newArray;
 	}
