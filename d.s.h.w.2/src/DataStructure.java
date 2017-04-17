@@ -37,6 +37,10 @@ public class DataStructure implements DT {
 		}
 		this.addPoint(pointer.getData());
 	}
+	
+	public boolean isEmpty(){
+		return this.size()==0;
+	}
 
 	/*
 	 * ************ addPoint ****************
@@ -49,10 +53,14 @@ public class DataStructure implements DT {
 	@Override
 	public void addPoint(Point point) {
 		// TODO Auto-generated method stub
-		Container xLink = this.x.add(point);
-		Container yLink = this.y.add(point);
-		yLink.setTwin(xLink);
-		xLink.setTwin(yLink);
+		if(point!=null){ //null check
+			Container xLink = this.x.add(point);
+			Container yLink = this.y.add(point);
+			yLink.setTwin(xLink);
+			xLink.setTwin(yLink);
+		}
+		else
+			throw new NullPointerException("can not insert null point");
 	}
 	
 	/*
@@ -67,6 +75,10 @@ public class DataStructure implements DT {
 	@Override
 	public Point[] getPointsInRangeRegAxis(int min, int max, Boolean axis) {
 		// TODO Auto-generated method stub
+		if(max<min) //arguments check
+			throw new IllegalArgumentException("max must be bigger then min");
+		if(this.isEmpty()) //empty check
+			throw new IllegalAccessError("this method requiers that the data structure will not be empty");
 		Container start;
 		Container end;
 		Container pointer;
@@ -116,6 +128,10 @@ public class DataStructure implements DT {
 	@Override
 	public Point[] getPointsInRangeOppAxis(int min, int max, Boolean axis) {
 		// TODO Auto-generated method stub
+		if(max<min) //arguments check
+			throw new IllegalArgumentException("max must be bigger then min");
+		if(this.isEmpty()) //empty check
+			throw new IllegalAccessError("this method requiers that the data structure will not be empty");
 		Container start;
 		Container end;
 		Container pointer;
@@ -208,6 +224,8 @@ public class DataStructure implements DT {
 	@Override
 	public double getDensity() {
 		// TODO Auto-generated method stub
+		if(this.size()>=2) // Density is not defined for dataStruycture with size lesser then two
+			throw new IllegalAccessError("this method requiers that the data structure will contain at least two points");
 		Container maxX = this.x.last;
 		Container maxY=this.y.last;
 		Container minX  =this.x.first;
@@ -231,6 +249,8 @@ public class DataStructure implements DT {
 	@Override
 	public Boolean getLargestAxis() {
 		// TODO Auto-generated method stub
+		if(this.isEmpty()) //empty check
+			throw new IllegalAccessError("this method requiers that the data structure will not be empty");
 		Container maxX = this.x.last;
 		Container maxY=this.y.last;
 		Container minX  =this.x.first;
@@ -249,6 +269,8 @@ public class DataStructure implements DT {
 	@Override
 	public void narrowRange(int min, int max, Boolean axis) {
 		// TODO Auto-generated method stub
+		if(this.isEmpty()) //empty check
+			throw new IllegalAccessError("this method requiers that the data structure will not be empty");
 		if(axis==true){
 			this.x.delete(new Point(max,0), new Point(min,0));
 		}
@@ -268,6 +290,8 @@ public class DataStructure implements DT {
 	@Override
 	public Container getMedian(Boolean axis) {
 		// TODO Auto-generated method stub
+		if(this.isEmpty()) // empty check
+			throw new IllegalAccessError("this method requiers that the data structure will not be empty");
 		int midIndex = this.x.getSize()/2;
 		Container mid;
 		if(axis)
@@ -468,7 +492,8 @@ public class DataStructure implements DT {
 	}
 
 	/*
-	 * ************ assisting method *************
+	 * ************ assisting methods*************
+	 * **those methods will be used only inside other methods, after null and empty checks/
 	 * --distance between points
 	 * --creating an array from pointers
 	 * --creating an array of  the "size" first points in the data structure according to X
