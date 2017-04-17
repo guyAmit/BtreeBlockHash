@@ -4,8 +4,8 @@ public class DataStructure implements DT {
 
 	private TwinSortedList x; //list sorted according to the x value's of the points
 	private TwinSortedList y; //list sorted according to the y value's of the points
-    private PonintsYComperator compY;
-    private PonintsXComperator compX;
+    private PonintsYComperator compY; //Comparator that inflicts an partial order according to the Y coordinate of the points
+    private PonintsXComperator compX; //Comparator that inflicts an partial order according to the X coordinate of the points
     
     
 	//////////////// DON'T DELETE THIS CONSTRUCTOR ////////////////
@@ -350,9 +350,19 @@ public class DataStructure implements DT {
 		
 	}
 	
-
-
-	
+	/*
+	 * *****************nearestPair********************
+	 * this method calculate the nearest pair using the following algorithm
+	 * 1) if there are just two points -> return them
+	 * 2) if there are less then two points -> return null i.e. there are no pairs
+	 * 3) determine who is the bigger axis
+	 * 4) create two DataStructures, one for each half of the points
+	 * 5) applying nearestPair() two each of the new the DataStuctures recursively
+	 * 6) if there is a solution to just one of the half -> return it.
+	 * 7) else calculate the nearest pairs in all the area's that the algorithm missed during the division
+	 * 8) if from line 7 there is a solution -> return it
+	 * 9) else return the nearest pair from the 4 points from earlier calculation
+	 */
 
 	@Override
 	public Point[] nearestPair() {
@@ -414,6 +424,7 @@ public class DataStructure implements DT {
 	 * *****************NearestPair-brute force for  two arrays of size 2********************
 	 * Comparing all the pairs and returning the "nearest pair"
 	 */
+	
 	private Point[] nearestPair(Point[] smaller,Point[] bigger){
 		Point[] result =new Point[2];
 		Point[] marge = new Point[4]; //Merging into one array
