@@ -11,8 +11,8 @@ public class Main {
 
 	public static void main(String[] args) 
 	{
-		///testA();
-		//testB();
+		testA();
+		testB();
 		testC();
 	}
 
@@ -1165,7 +1165,7 @@ public class Main {
         int testCounter=0;
 
         DT dt=new DataStructure();
-        for (int i=0;i<10;i++) 
+        for (int i=0;i<1000;i++) 
         {
             dt.addPoint(points[i]);
         }

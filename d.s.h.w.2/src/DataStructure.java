@@ -22,7 +22,7 @@ public class DataStructure implements DT {
 	
 	/*
 	 * ************ copying constructor ****************
-	 * this constructor receive two nodes from an previous dataStracture, and create a
+	 * this constructor receive two nodes from an previous dataStructure, and create a
 	 * new Data Structure just from the nodes between the range given by "start" and "end".
 	 * the copying constructor will be used in nearest pair.
 	 */
@@ -224,7 +224,7 @@ public class DataStructure implements DT {
 	@Override
 	public double getDensity() {
 		// TODO Auto-generated method stub
-		if(this.size()>=2) // Density is not defined for dataStruycture with size lesser then two
+		if(this.size()<2) // Density is not defined for dataStruycture with size lesser then two
 			throw new IllegalAccessError("this method requiers that the data structure will contain at least two points");
 		Container maxX = this.x.last;
 		Container maxY=this.y.last;
@@ -318,19 +318,29 @@ public class DataStructure implements DT {
 	public Point[] nearestPairInStrip(Container container, Double width, Boolean axis) {
 		// TODO Auto-generated method stub
 		if(axis){
+			int size=0;
 			Container start = container;	
 			Point leftVal =new Point((int)(container.getData().getX()-(width)/2), container.getData().getY());
 			while(start.getBack()!=null && compX.compare(start.getData(), leftVal)>=0){
 				start=start.getBack();
+				size++;
 			}
 			Container end = container;	
 			Point rightVal =new Point((int)(container.getData().getX()+(width)/2), container.getData().getY());
 			while(end.getNext()!=null && compX.compare(start.getData(), rightVal)<=0){
 				end=end.getNext();
+				size++;
 			}
-			Point[] array = this.createArrayFromPointers(start, end);
+			size++;
+			Point[] array;
+			if(this.size()<=size()*Math.log(size)){
+				array=this.getPointsInRangeOppAxis(start.getData().getX(), end.getData().getX(), axis);
+			}
+			else{
+			   array= this.createArrayFromPointers(start, end);
+				Arrays.sort(array, compY);
+			}
 			if(array.length<2) return null;
-			Arrays.sort(array, compY);
 			double min = width/2;
 			Point[] result = new Point[2];
 			for (int i = 0; i < array.length; ++i) {
@@ -345,19 +355,29 @@ public class DataStructure implements DT {
 			return result;
 		}
 		else{
+			int size=0;
 			Container start = container;	
 			Point leftVal =new Point( container.getData().getX(),(int)(container.getData().getY()-(width)/2));
 			while(start!=null && compX.compare(start.getData(), leftVal)>=0){
 				start=start.getBack();
+				size++;
 			}
 			Container end = container;	
 			Point rightVal =new Point(container.getData().getX(),(int)(container.getData().getY()+(width)/2));
 			while(compX.compare(start.getData(), leftVal)<=0){
 			     end=end.getNext();
+			     size++;
 			}
-			Point[] array = this.createArrayFromPointers(start, end);
+			size++;
+			Point[] array;
+			if(this.size()<=size()*Math.log(size)){
+				array=this.getPointsInRangeOppAxis(start.getData().getX(), end.getData().getX(), axis);
+			}
+			else{
+			   array= this.createArrayFromPointers(start, end);
+				Arrays.sort(array, compY);
+			}
 			if(array.length<2) return null;
-			Arrays.sort(array, compX);
 			double min = width/2;
 			Point[] result = new Point[2];
 			for (int i = 0; i < array.length; ++i) {
