@@ -25,7 +25,9 @@ public class DataStructure implements DT {
 	 * this constructor receive two nodes from an previous dataStructure, and create a
 	 * new Data Structure just from the nodes between the range given by "start" and "end".
 	 * the copying constructor will be used in nearest pair.
-	 * runtime: O(|b|)
+	 * runtime: O(|b|) where |b| is the length of the desired list.
+	 * note that if we find the median (O(n)), we can easily split the dataStructure into two smaller dataStructures
+	 * with O(n) runtime.-the bonus question 6.5
 	 */
 	
 	public DataStructure(Container start,Container end,boolean axis,int size,TwinSortedList otherAxis){
@@ -40,8 +42,8 @@ public class DataStructure implements DT {
 			this.x=new TwinSortedList(compX);
 			Container pointer=start;
 			for (int i = 0; i < ySorted.length; i++) {
-				Container yLink = y.addLast(ySorted[i]);
-				Container xLink = this.x.addLast(start);
+				Container yLink = y.addLast(ySorted[i]);// O(1)
+				Container xLink = this.x.addLast(start); // O(1)
 				xLink.setTwin(yLink);
 				start=start.getNext();
 			}
