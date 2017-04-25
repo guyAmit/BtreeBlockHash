@@ -216,13 +216,21 @@ public class DataStructure implements DT {
 			return returnVal;
 		}
 		
-	}
+	}	
+	/*
+	 * ************* getContinaersInRangeOppAxis *****************
+	 * this method gets all the points in the range, sorted according to the opposite of
+	 * the given axis. it does so by marking all the points in the opposite list that are
+	 * in the range, and than copy them according to there order in the opposite list to 
+	 * an array.
+	 * this method is for the copying contractor and should not be used else where.
+	 */
 	
-	public Container[] getContinaersInRangeOppAxis(Container min,Container max,boolean axis){
-//		if(max<min) //arguments check
-//			throw new IllegalArgumentException("max must be bigger then min");
-//		if(this.isEmpty()) //empty check
-//			throw new IllegalAccessError("this method requiers that the data structure will not be empty");
+	private Container[] getContinaersInRangeOppAxis(Container min,Container max,boolean axis){
+		if(max==null | min==null) //arguments check
+			throw new IllegalArgumentException("arguments must nut be null");
+		if(this.isEmpty()) //empty check
+			throw new IllegalAccessError("this method requiers that the data structure will not be empty");
 		Container start=min;
 		Container end=max;
 		Container pointer;
