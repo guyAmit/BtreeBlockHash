@@ -25,18 +25,47 @@ public class DataStructure implements DT {
 	 * this constructor receive two nodes from an previous dataStructure, and create a
 	 * new Data Structure just from the nodes between the range given by "start" and "end".
 	 * the copying constructor will be used in nearest pair.
+	 * runtime: O(|b|)
 	 */
 	
-	public DataStructure(Container start,Container end){
+	public DataStructure(Container start,Container end,boolean axis,int size,TwinSortedList otherAxis){
 		this();		
-		Container pointer=start;
-		while((pointer.getData()).getX()!=(end.getData()).getX() &
-				(pointer.getData()).getY()!=(end.getData()).getY()){
-			this.addPoint(pointer.getData());
-			pointer=pointer.getNext();
+		if(axis){
+			this.x.first=start;
+			this.x.last=end;
+			this.x.setSize(size);
+			this.y=otherAxis;
+			Container[] ySorted= this.getContinaersInRangeOppAxis(start, end, axis);
+			this.y=new TwinSortedList(compY);
+			this.x=new TwinSortedList(compX);
+			Container pointer=start;
+			for (int i = 0; i < ySorted.length; i++) {
+				Container yLink = y.addLast(ySorted[i]);
+				Container xLink = this.x.addLast(start);
+				xLink.setTwin(yLink);
+				start=start.getNext();
+			}
+			this.y.SetTwin(this.x);
 		}
-		this.addPoint(pointer.getData());
+		else{
+			this.y.first=start;
+			this.y.last=end;
+			this.y.setSize(size);
+			this.x=otherAxis;
+			Container[] xSorted= this.getContinaersInRangeOppAxis(start, end, axis);
+			this.x=new TwinSortedList(compX);
+			this.x=new TwinSortedList(compX);
+			Container pointer=start;
+			for (int i = 0; i < xSorted.length; i++) {
+				Container xLink = x.addLast(xSorted[i]);
+				Container yLink = this.y.addLast(start);
+				yLink.setTwin(xLink);
+				start=start.getNext();
+			}
+			this.x.SetTwin(this.y);
+		}
 	}
+	
 	
 	public boolean isEmpty(){
 		return this.size()==0;
@@ -187,6 +216,57 @@ public class DataStructure implements DT {
 		
 	}
 	
+	public Container[] getContinaersInRangeOppAxis(Container min,Container max,boolean axis){
+//		if(max<min) //arguments check
+//			throw new IllegalArgumentException("max must be bigger then min");
+//		if(this.isEmpty()) //empty check
+//			throw new IllegalAccessError("this method requiers that the data structure will not be empty");
+		Container start=min;
+		Container end=max;
+		Container pointer;
+		int counter=0;
+		if(axis){
+			pointer= start;
+			while(pointer!=null && (this.compX.compare(pointer.getData(),end.getData())<=0)){
+				counter++;
+				pointer.getTwin().marker=true;
+				pointer=pointer.getNext();
+			}
+			Container[] returnVal = new Container[counter];
+			Container oppPointer=this.y.first;
+			int index=0;
+			while(oppPointer!=null){
+				if(oppPointer.marker){
+					returnVal[index]=oppPointer;
+					index++;
+				}
+				oppPointer=oppPointer.getNext();
+			}
+			this.resetMarkers(false);
+			return returnVal;
+		}
+		else{
+			pointer=start;
+			while(pointer!=null &&(this.compY.compare(pointer.getData(),end.getData())<=0)){
+				counter++;
+				pointer.getTwin().marker=true;
+				pointer=pointer.getNext();
+			}
+			Container[] returnVal = new Container[counter];
+			Container oppPointer=this.x.first;
+			int index=0;
+			while(oppPointer!=null){
+				if(oppPointer.marker){
+					returnVal[index]=oppPointer;
+					index++;
+				}
+				oppPointer=oppPointer.getNext();
+			}
+			this.resetMarkers(true);
+			return returnVal;
+		}
+	}
+	
 	/*
 	 *  *************resetMarkers**********************
 	 *  this method reset all the "marker" fields in a given list
@@ -304,6 +384,8 @@ public class DataStructure implements DT {
 		return mid;
 	}
 	
+	
+	
 	/*
 	 * *****************nearestPairInStrip********************
 	 * this method first copy all the points into an array,
@@ -417,10 +499,13 @@ public class DataStructure implements DT {
 			return null;
 		else{
 			Point[] result;
-			if(this.getLargestAxis()){
-				Container mid = this.getMedian(true);
-				DataStructure smallerHalf = new DataStructure(this.x.first,mid);
-				DataStructure biggerHalf = new DataStructure(mid.getNext(),this.x.last);
+			boolean axis=this.getLargestAxis();
+			if(axis){
+				Object[] midAndIndex = this.getMedianAndMinIndex(true);
+				Container mid = (Container)midAndIndex[0];
+				int midPoss = (Integer)midAndIndex[1];
+				DataStructure smallerHalf = new DataStructure(this.x.first,mid,axis,midPoss,this.y);
+				DataStructure biggerHalf = new DataStructure(mid.getNext(),this.x.last,axis,this.size()-midPoss,this.y);
 				Point[] smallerPair = smallerHalf.nearestPair();
 				Point[] biggerPair = biggerHalf.nearestPair();
 				if(smallerPair==null)
@@ -440,9 +525,11 @@ public class DataStructure implements DT {
 				return result;
 			}
 			else{
-				Container mid = this.getMedian(false);
-				DataStructure smallerHalf = new DataStructure(this.y.first,mid);
-				DataStructure biggerHalf = new DataStructure(mid.getNext(),this.y.last);
+				Object[] midAndIndex = this.getMedianAndMinIndex(true);
+				Container mid = (Container)midAndIndex[0];
+				int midPoss = (Integer)midAndIndex[1];
+				DataStructure smallerHalf = new DataStructure(this.y.first,mid,axis,midPoss,this.x);
+				DataStructure biggerHalf = new DataStructure(mid.getNext(),this.y.last,axis,this.size()-midPoss,this.x);
 				Point[] smallerPair = smallerHalf.nearestPair();
 				Point[] biggerPair = biggerHalf.nearestPair();
 				if(smallerPair==null)
@@ -552,6 +639,26 @@ public class DataStructure implements DT {
 			pointer=pointer.getNext();
 		}
 		return newArray;
+	}
+	
+	public Object[] getMedianAndMinIndex(Boolean axis) {
+		if(this.isEmpty()) // empty check
+			throw new IllegalAccessError("this method requiers that the data structure will not be empty");
+		Object[] returnVal = new Object[2];
+		int midPoss=1;
+		int midIndex = this.x.getSize()/2;
+		Container mid;
+		if(axis)
+			mid = this.x.first;
+		else
+			mid = this.y.first;
+		for (int i = 0; i < midIndex; i++) {
+			mid=mid.getNext();
+			midPoss++;
+		}
+		returnVal[0]=mid;
+		returnVal[1]=midPoss;
+		return returnVal;
 	}
 	
 	

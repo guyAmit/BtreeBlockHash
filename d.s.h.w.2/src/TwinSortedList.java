@@ -158,6 +158,33 @@ public class TwinSortedList {
   }
 /*******************************END of delete method******************************/
 
+  /*
+   * *************** Assisting  method addLast****************
+   * simple algorithm that allow the user to insert a new container at the end of the list, but those not guarantee keeping
+   * partial order on the list
+   */
+  
+  public Container addLast(Container data){
+	  Container toReturn=null;
+	 if(this.first==null){
+		 this.first=new Container(data.getData());
+		 this.last=first;
+	     this.first.setTwin(data.getTwin());
+	     this.first.marker=data.marker;
+	     toReturn=this.first;
+	 }
+	 else{
+		 Container newLink=new Container(data.getData());
+		 newLink.marker=data.marker;
+		 newLink.setBack(this.last);
+		 newLink.setTwin(data.getTwin());
+		 this.last.setNext(newLink);
+		 this.last=newLink;
+		 toReturn=newLink;
+	 }
+	 this.size++;
+	 return toReturn;
+  }
   
   public int getSize(){
 	  return this.size;
@@ -167,14 +194,20 @@ public class TwinSortedList {
 	  this.size=size;
   }
   
+  /*
+   * *************** toString()****************
+   * return a string the depicts the list
+   */
+  
   @Override
   public String toString() {
 	String s ="SortedList: [ ";
-	Container temp= first;
-	while (temp!=null){
+	Container temp= this.first;
+	while (temp.getData().getX()!=this.last.getData().getX() & temp.getData().getY()!=this.last.getData().getY()){
 		s+=temp.getData().toString()+" , ";
 		temp=temp.getNext();
 	}
+	s+=temp.getData().toString()+" , ";
 	s=s.substring(0,s.length()-2);
 	return s+"]";
   }
