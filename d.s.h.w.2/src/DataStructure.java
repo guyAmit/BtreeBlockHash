@@ -301,7 +301,7 @@ public class DataStructure implements DT {
 	
 	private Container[] getContinaersInRangeOppAxis(Container min,Container max,boolean axis){
 		if(max==null | min==null) //arguments check
-			throw new IllegalArgumentException("arguments must nut be null");
+			throw new IllegalArgumentException("arguments must not be null");
 		if(this.isEmpty()) //empty check
 			throw new IllegalAccessError("this method requiers that the data structure will not be empty");
 		Container start=min;
@@ -318,7 +318,7 @@ public class DataStructure implements DT {
 			Container[] returnVal = new Container[counter];
 			Container oppPointer=this.y.first;
 			int index=0;
-			while(oppPointer!=null){
+			while(index<returnVal.length &&  oppPointer!=null){
 				if(oppPointer.marker){
 					returnVal[index]=oppPointer;
 					oppPointer.getTwin().index=index;
@@ -339,7 +339,7 @@ public class DataStructure implements DT {
 			Container[] returnVal = new Container[counter];
 			Container oppPointer=this.x.first;
 			int index=0;
-			while(oppPointer!=null){
+			while( oppPointer!=null){
 				if(oppPointer.marker){
 					returnVal[index]=oppPointer;
 					oppPointer.getTwin().index=index;
@@ -710,7 +710,7 @@ public class DataStructure implements DT {
 		Point[] newArray = new Point[size];
 		Container pointer= this.x.first;
 		int i=0;
-		while(pointer!=null){
+		while(i<newArray.length && pointer!=null){
 			newArray[i]= pointer.getData();
 			i++;
 			pointer=pointer.getNext();

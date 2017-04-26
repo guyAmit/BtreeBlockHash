@@ -159,7 +159,7 @@ public class TwinSortedList {
 /*******************************END of delete method******************************/
 
   /*
-   * *************** Assisting  method addLast****************
+   * *************** Assisting  methods addLast****************
    * simple algorithm that allow the user to insert a new container at the end of the list, but those not guarantee keeping
    * partial order on the list
    */
@@ -188,7 +188,7 @@ public class TwinSortedList {
   
   public void addLastWithOutCopying(Container data){
 		 if(this.first==null){
-			 data.setNext(data);
+			 data.setNext(this.first);
 			 data.setBack(null);
 			 this.first=data;
 			 this.last=data;
@@ -196,6 +196,7 @@ public class TwinSortedList {
 		 else{
 			 data.setBack(this.last);
 			 data.setNext(null);
+			 this.last.setNext(data);
 			 this.last=data;
 		 }
 		 this.size++;
