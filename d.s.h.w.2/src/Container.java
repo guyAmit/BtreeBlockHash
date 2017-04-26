@@ -6,7 +6,7 @@ public class Container{
 	private Container back;
 	private Container Twin;
 	public boolean marker; // used in gerPointsInRangeOpp
-
+    public int index; //used in getContinaersInRangeOpp
 	
 	public Container(Point data, Container next,Container back){
 	    this.data = data;
@@ -18,6 +18,14 @@ public class Container{
 	public Container(Point data){
 		this(data,null,null);
 	} 
+	
+	public Container(Container other){
+		this.data=other.data;
+		this.next=other.next;
+		this.back=other.back;
+		this.Twin=other.Twin;
+		this.marker=other.marker;
+	}
 		
 	//Don't delete or change this function
 	public Point getData()

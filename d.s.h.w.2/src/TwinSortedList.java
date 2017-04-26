@@ -28,7 +28,7 @@ public class TwinSortedList {
   
   public Container closestFromStart(Point val){
 	  Container startPointer =this.first;
-	  while(comp.compare(val, startPointer.getData())==1){
+	  while(startPointer.getNext()!=null && comp.compare(val, startPointer.getData())==1){
 		  startPointer=startPointer.getNext();
 	  }
 	  return startPointer;
@@ -36,7 +36,7 @@ public class TwinSortedList {
   
   public Container closestFromEnd(Point val){
 	  Container endPointer=this.last;
-	  while(comp.compare(val, endPointer.getData())==-1){
+	  while(endPointer.getBack()!=null && comp.compare(val, endPointer.getData())==-1){
 		  endPointer=endPointer.getBack();
 	  }
 	  return endPointer;
@@ -165,7 +165,7 @@ public class TwinSortedList {
    */
   
   public Container addLast(Container data){
-	  Container toReturn=null;
+	 Container toReturn=null;
 	 if(this.first==null){
 		 this.first=new Container(data.getData());
 		 this.last=first;
@@ -184,6 +184,21 @@ public class TwinSortedList {
 	 }
 	 this.size++;
 	 return toReturn;
+  }
+  
+  public void addLastWithOutCopying(Container data){
+		 if(this.first==null){
+			 data.setNext(data);
+			 data.setBack(null);
+			 this.first=data;
+			 this.last=data;
+		 }
+		 else{
+			 data.setBack(this.last);
+			 data.setNext(null);
+			 this.last=data;
+		 }
+		 this.size++;
   }
   
   public int getSize(){
