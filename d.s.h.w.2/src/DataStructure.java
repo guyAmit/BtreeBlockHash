@@ -89,6 +89,8 @@ public class DataStructure implements DT {
 				this.x.addLastWithOutCopying(xSorted[i]);//o(1)
 			}
 		}
+		this.x.SetTwin(y);
+		this.y.SetTwin(x);
 	}
 	
 	
@@ -521,13 +523,13 @@ public class DataStructure implements DT {
 			int size=0;
 			Container start = container;	
 			Point leftVal =new Point( container.getData().getX(),(int)(container.getData().getY()-(width)/2));
-			while(start.getBack()!=null && compX.compare(start.getData(), leftVal)>=0){
+			while(start.getBack()!=null && compY.compare(start.getData(), leftVal)>=0){
 				start=start.getBack();
 				size++;
 			}
 			Container end = container;	
 			Point rightVal =new Point(container.getData().getX(),(int)(container.getData().getY()+(width)/2));
-			while(end.getNext()!=null && compX.compare(start.getData(), rightVal)<=0){
+			while(end.getNext()!=null && compY.compare(end.getData(), rightVal)<=0){
 			     end=end.getNext();
 			     size++;
 			}
@@ -569,8 +571,10 @@ public class DataStructure implements DT {
 	@Override
 	public Point[] nearestPair() {
 		// TODO Auto-generated method stub
-		if(this.size()==2)
-			return this.makeArrayOfSize(2);
+		if(this.size()>=2 & this.size()<=4){
+			Point[] arr = this.makeArrayOfSize(this.size());
+			return this.closestPair(arr);
+		}
 		else if(this.size()<2)
 			return null;
 		else{
@@ -652,6 +656,22 @@ public class DataStructure implements DT {
 		}
 		return result;
 	}
+	
+	private Point[] closestPair(Point[] points){
+		Point[] result =new Point[2]; 
+		double dMin = Double.POSITIVE_INFINITY;         //the brute force algorithm
+		for (int i = 0; i < points.length-1; i++) {
+			for (int j = i+1; j < points.length; j++) {
+				double dis=this.distance(points[i],points[j]);
+				if(dis<dMin){
+					dMin=dis;
+					result[0]=points[i];
+					result[1]=points[j];
+				}	
+			}
+		}
+		return result;
+	}
 
 	/*
 	 * *****************size********************
@@ -685,7 +705,7 @@ public class DataStructure implements DT {
 	
 	
 	private double distance(Point p1, Point p2){
-	        return Math.sqrt( Math.pow(p1.getX()-p2.getX(),2)+Math.pow(p1.getY()-p2.getY(),2));
+	        return Math.sqrt(Math.pow(p1.getX()-p2.getX(),2)+Math.pow(p1.getY()-p2.getY(),2));
 	}
 
 	private Point[] createArrayFromPointers(Container start,Container end){

@@ -1,3 +1,4 @@
+import java.io.StreamTokenizer;
 import java.util.Comparator;
 
 public class TwinSortedList {
@@ -28,6 +29,7 @@ public class TwinSortedList {
   
   public Container closestFromStart(Point val){
 	  Container startPointer =this.first;
+	  if(startPointer==null) return null;
 	  while(startPointer.getNext()!=null && comp.compare(val, startPointer.getData())==1){
 		  startPointer=startPointer.getNext();
 	  }
@@ -36,6 +38,7 @@ public class TwinSortedList {
   
   public Container closestFromEnd(Point val){
 	  Container endPointer=this.last;
+	  if(endPointer==null) return null;
 	  while(endPointer.getBack()!=null && comp.compare(val, endPointer.getData())==-1){
 		  endPointer=endPointer.getBack();
 	  }
@@ -114,17 +117,38 @@ public class TwinSortedList {
   
   public void delete(Point max, Point min){
 	  int counter=0; //counter for counting how many items are we deleting
+	  boolean maxFlag=false;
+	  boolean minFlag=false;
 	 Container  startPointer =this.first;
-	  while(comp.compare(min, startPointer.getData())==1){
-		  this.deleteInTwinList(startPointer);
+	 while(startPointer.getNext()!=null && comp.compare(min, startPointer.getData())==1){
+		  if(startPointer.getTwin()!=null) this.deleteInTwinList(startPointer);
 		  startPointer=startPointer.getNext();
 		  counter++;
 	  }
+	 if(comp.compare(this.first.getData(), startPointer.getData())==0) minFlag=true;
 	 Container  endPointer=this.last;
-	  while(comp.compare(max, endPointer.getData())==-1){
-		  this.deleteInTwinList(endPointer);
+	 while(endPointer.getBack()!=null && comp.compare(max, endPointer.getData())==-1){
+		  if(endPointer.getTwin()!=null) this.deleteInTwinList(endPointer);
 		  endPointer=endPointer.getBack();
 		  counter++;
+	  }
+	 if(comp.compare(this.first.getData(), endPointer.getData())==0) maxFlag=true;
+	 if(minFlag & ! maxFlag){
+		 this.last=this.first;
+		 this.first.setNext(null);
+		 return;
+	 }
+	 if(!minFlag &  maxFlag){
+		 this.first=this.last;
+		 this.last.setBack(null);
+		 return;
+	 }
+	 if(comp.compare(endPointer.getData(),startPointer.getData())<0){
+		  this.first=null;
+		  this.last=null;
+		  this.twinList.first=null;
+		  this.twinList.last=null;
+		  return;
 	  }
 	  startPointer.setBack(null);
 	  this.first=startPointer;
@@ -144,8 +168,11 @@ public class TwinSortedList {
 	  if(other.getBack()!=null & other.getNext()!=null){ //Inner part of the list
 		 Container  back=other.getBack();
 		 Container  next= other.getNext();
-		  back.setNext(next);
-		  next.setBack(back);
+		 if(back!=null) back.setNext(next);
+		  if(next!=null) next.setBack(back);
+	  }
+	  else if(other.getBack()==null & other.getNext()==null){ //last item on the second list
+		  otherNode.setTwin(null);
 	  }
 	  else if(other.getBack()==null){ //other.back==null => at the beginning of the list
 		  this.twinList.first=other.getNext();
