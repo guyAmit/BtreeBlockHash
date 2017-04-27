@@ -135,8 +135,11 @@ public class DataStructure implements DT {
 		// TODO Auto-generated method stub
 		if(max<min) //arguments check
 			throw new IllegalArgumentException("max must be bigger then min");
-		if(this.isEmpty()) //empty check
-			throw new IllegalAccessError("this method requiers that the data structure will not be empty");
+		if(this.isEmpty() | this.x.first==null | this.y.first==null){ //empty check
+			System.out.println("this method requiers that the data structure will not be empty");
+			Point[] val = new Point[0];
+			return val;
+		}
 		Container start;
 		Container end;
 		Container pointer;
@@ -147,6 +150,17 @@ public class DataStructure implements DT {
 			start= this.x.closestFromStart(minX);
 			end= this.x.closestFromEnd(maxX);
 			pointer= start;
+			if(start.getData().getX()==end.getData().getX()){
+				if(start.getData().getX()>=minX.getX() & start.getData().getX()<=maxX.getX()){
+					Point[] val = new Point[1];
+					val[0]=start.getData();
+					return val;
+				}
+				else{
+					Point[] val = new Point[0];
+					return val;
+				}
+			}
 			while(pointer!=null && (this.compX.compare(pointer.getData(),end.getData())<=0)){
 				counter++;
 				pointer=pointer.getNext();
@@ -159,6 +173,18 @@ public class DataStructure implements DT {
 			start= this.y.closestFromStart(minY);
 			end= this.y.closestFromEnd(maxY);
 			pointer=start;
+			if(start.getData().getY()==end.getData().getY()){
+				if(start.getData().getY()>=minY.getY() & start.getData().getY()<=maxY.getY()){
+					Point[] val = new Point[1];
+					val[0]=start.getData();
+					return val;
+				}
+				else{
+					Point[] val = new Point[0];
+					return val;
+				}
+					
+			}
 			while(pointer!=null &&(this.compY.compare(pointer.getData(),end.getData())<=0)){
 				counter++;
 				pointer=pointer.getNext();
@@ -245,6 +271,17 @@ public class DataStructure implements DT {
 			Point maxX = new Point(max,0);
 			start= this.x.closestFromStart(minX);
 			end= this.x.closestFromEnd(maxX);
+			if(start.getData().getX()==end.getData().getX()){
+				if(start.getData().getX()>=minX.getX() & start.getData().getX()<=maxX.getX()){
+					Point[] val = new Point[1];
+					val[0]=start.getData();
+					return val;
+				}
+				else{
+					Point[] val = new Point[0];
+					return val;
+				}
+			}
 			pointer= start;
 			while(pointer!=null && (this.compX.compare(pointer.getData(),end.getData())<=0)){
 				counter++;
@@ -269,6 +306,18 @@ public class DataStructure implements DT {
 			Point maxY = new Point(0,max);
 			start= this.y.closestFromStart(minY);
 			end= this.y.closestFromEnd(maxY);
+			if(start.getData().getY()==end.getData().getY()){
+				if(start.getData().getY()>=minY.getY() & start.getData().getY()<=maxY.getY()){
+					Point[] val = new Point[1];
+					val[0]=start.getData();
+					return val;
+				}
+				else{
+					Point[] val = new Point[0];
+					return val;
+				}
+					
+			}
 			pointer=start;
 			while(pointer!=null &&(this.compY.compare(pointer.getData(),end.getData())<=0)){
 				counter++;

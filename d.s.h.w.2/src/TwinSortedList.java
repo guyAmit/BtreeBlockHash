@@ -117,39 +117,32 @@ public class TwinSortedList {
   
   public void delete(Point max, Point min){
 	  int counter=0; //counter for counting how many items are we deleting
-	  boolean maxFlag=false;
-	  boolean minFlag=false;
 	 Container  startPointer =this.first;
 	 while(startPointer.getNext()!=null && comp.compare(min, startPointer.getData())==1){
 		  if(startPointer.getTwin()!=null) this.deleteInTwinList(startPointer);
 		  startPointer=startPointer.getNext();
 		  counter++;
 	  }
-	 if(comp.compare(this.first.getData(), startPointer.getData())==0) minFlag=true;
 	 Container  endPointer=this.last;
-	 while(endPointer.getBack()!=null && comp.compare(max, endPointer.getData())==-1){
-		  if(endPointer.getTwin()!=null) this.deleteInTwinList(endPointer);
-		  endPointer=endPointer.getBack();
-		  counter++;
+	 boolean flag=false;
+	 while(endPointer.getBack()!=null && !flag & comp.compare(max, endPointer.getData())==-1){
+		  if(comp.compare(endPointer.getData(), startPointer.getData())==0)
+			  flag=true;
+		  else{
+			if(endPointer.getTwin()!=null) this.deleteInTwinList(endPointer);
+		  	endPointer=endPointer.getBack();
+		  	counter++;
+		  }
 	  }
-	 if(comp.compare(this.first.getData(), endPointer.getData())==0) maxFlag=true;
-	 if(minFlag & ! maxFlag){
-		 this.last=this.first;
-		 this.first.setNext(null);
-		 return;
-	 }
-	 if(!minFlag &  maxFlag){
-		 this.first=this.last;
-		 this.last.setBack(null);
-		 return;
-	 }
-	 if(comp.compare(endPointer.getData(),startPointer.getData())<0){
-		  this.first=null;
-		  this.last=null;
-		  this.twinList.first=null;
-		  this.twinList.last=null;
-		  return;
-	  }
+		if(comp.compare(endPointer.getData(), startPointer.getData())==0){
+			if(!(comp.compare(startPointer.getData(), min)>=0 & comp.compare(startPointer.getData(), max)<=0)){
+				  this.first=null;
+				  this.last=null;
+				  this.twinList.first=null;
+				  this.twinList.last=null;
+				  return;
+			}
+		}
 	  startPointer.setBack(null);
 	  this.first=startPointer;
 	  endPointer.setNext(null);
