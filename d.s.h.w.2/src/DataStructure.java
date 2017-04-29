@@ -552,8 +552,12 @@ public class DataStructure implements DT {
 			}
 			size++;
 			Point[] array;
-			array= this.createArrayFromPointers(start, end);
-			Arrays.sort(array, compY);
+			if(this.size()<size*Math.log(size)/Math.log((2)))
+				array=this.getPointsInRangeOppAxis(start.getData().getX(), end.getData().getX(), axis);
+			else{
+				array= this.createArrayFromPointers(start, end);
+				Arrays.sort(array, compY);
+			}
 			if(array.length<2) return null;
 			double min = width/2;
 			Point[] result = new Point[2];
@@ -584,6 +588,12 @@ public class DataStructure implements DT {
 			}
 			size++;
 			Point[] array;
+			if(this.size()<size*(Math.log(size))/Math.log(2))
+				array=this.getPointsInRangeOppAxis(start.getData().getY(), end.getData().getY(), axis);
+			else{
+				array= this.createArrayFromPointers(start, end);
+				Arrays.sort(array, compY);
+			}
 			array= this.createArrayFromPointers(start, end);
 		    Arrays.sort(array, compX);
 			if(array.length<2) return null;
