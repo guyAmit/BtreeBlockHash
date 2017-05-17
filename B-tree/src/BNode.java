@@ -187,6 +187,7 @@ public class BNode implements BNodeInterface {
 			for (int j = 0; j < t; j++) {
 				z.addChild(y.getChildAt(j+t));
 			}
+			y.childrenList.removeAll(z.childrenList);
 		}
 		for (int j = this.numOfBlocks+1; j < i+1; j--) {
 		   this.childrenList.set(j+1, this.getChildAt(j));
