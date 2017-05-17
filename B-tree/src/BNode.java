@@ -163,10 +163,10 @@ public class BNode implements BNodeInterface {
 	public Block search(int key) {
 		// TODO Auto-generated method stub
 		int i=0;
-		while(i <= this.numOfBlocks && this.getBlockAt(i).getKey()<key){
+		while(i < this.numOfBlocks && this.getBlockAt(i).getKey()<key){
 			i++;
 		}
-		if(i<=this.numOfBlocks && this.getBlockAt(i).getKey()==key)
+		if(i<this.numOfBlocks && this.getBlockAt(i).getKey()==key)
 			return this.getBlockAt(i);
 		else{
 			if(this.isLeaf)
@@ -178,26 +178,27 @@ public class BNode implements BNodeInterface {
 
 	public void splitChild(int i){
 		BNode y= this.childrenList.get(i);
-		BNode z= new BNode(t,new Block(0,null));
-		z.isLeaf=y.isLeaf;
-		z.numOfBlocks=t-1;
-		z.blocksList.remove(0);
+		BNode z= new BNode(t,y.isLeaf,t-1);
 		for (int j = 0; j < t-1; j++) {
 			z.blocksList.add(y.getBlockAt(j+t));
 		}
+		y.blocksList.removeAll(z.blocksList);
 		if(!y.isLeaf){
 			for (int j = 0; j < t; j++) {
-				z.childrenList.add(y.childrenList.get(j+t));
+				z.addChild(y.getChildAt(j+t));
 			}
 		}
 		for (int j = this.numOfBlocks+1; j < i+1; j--) {
 		   this.childrenList.set(j+1, this.getChildAt(j));
 		}
-		this.childrenList.set(i+1, z);
+		if(i+1<this.childrenList.size()) //if there was exclty one child
+			this.childrenList.set(i+1, z);
+		else  this.childrenList.add(z);
 		for (int j = this.numOfBlocks; j < i; j--) {
 			this.blocksList.set(j+1, this.getBlockAt(j));
 		}
-		this.blocksList.set(i, y.blocksList.get(t));
+		this.blocksList.add(i, y.blocksList.get(t-1));
+		y.blocksList.remove(t-1);
 		this.numOfBlocks++;
 		y.numOfBlocks=t-1;
 	}
@@ -205,15 +206,14 @@ public class BNode implements BNodeInterface {
 	
 	@Override
 	public void insertNonFull(Block d) {
-		// TODO Auto-generated method stub
-		int i = this.numOfBlocks;
+		int i = this.numOfBlocks-1;
 		if(this.isLeaf){
 			while(i>=1 && d.getKey()< this.getBlockKeyAt(i)){
 				this.blocksList.set(i+1, this.getBlockAt(i));
 				i--;
 			}
-		this.blocksList.set(i+1, d);
-		this.numOfBlocks++;
+			this.blocksList.add(i+1, d);
+			this.numOfBlocks++;
 		}
 		else{
 			while(i>=1 && d.getKey()< this.getBlockKeyAt(i)){
@@ -221,13 +221,22 @@ public class BNode implements BNodeInterface {
 				i--;
 			}
 			i++;
-			if(this.childrenList.get(i).numOfBlocks==2*t-1){
-				this.childrenList.get(i).splitChild(i);
+			if(this.childrenList.get(i).isFull()){
+				this.splitChild(i);
 				if(d.getKey()>=this.getBlockKeyAt(i))
 					i++;
 			}
-			this.insertNonFull(d);	
+			this.childrenList.get(i).insertNonFull(d);	
 		}
+	}
+	
+	
+	public void increseNumberOfBlocks(){
+		this.numOfBlocks++;
+	}
+	
+	public void addChild(BNode node){
+		this.childrenList.add(node);
 	}
 
 	@Override

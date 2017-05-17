@@ -82,17 +82,20 @@ public class BTree implements BTreeInterface {
 	public void insert(Block b) {
 		// TODO Auto-generated method stub
 		BNode r = this.root;
-		if(r.getNumOfBlocks()==2*t-1){
-			BNode s= new BNode(t, new Block(0, null));
-			s.getBlocksList().remove(0);
+		if(r==null){
+			this.root= new BNode(t, b);
+		}
+		else if(r.isFull()){
+			BNode s= new BNode(t,false,0);
 			this.root=s;
-			s.setLeaf(false);
-			s.getChildrenList().add(r);
-			s.splitChild(1);
+			this.root.setLeaf(false);
+			s.addChild(r);
+			s.splitChild(0);
 			s.insertNonFull(b);
 		}
-		else
+		else{
 			r.insertNonFull(b);
+		}
 		
 	}
 
@@ -107,6 +110,28 @@ public class BTree implements BTreeInterface {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public void print(BNode n)
+	{
+		for(int i = 0; i < n.getNumOfBlocks(); i++)
+		{
+			System.out.print(n.getBlockAt(i)+" " );//this part prints root node
+		}
+
+		if(!n.isLeaf())//this is called when root is not leaf;
+		{
+
+			for(int j = 0; j <= n.getNumOfBlocks()  ; j++)//in this loop we recurse
+			{				  //to print out tree in
+				if(n.getChildAt(j) != null) //preorder fashion.
+				{			  //going from left most
+				System.out.println();	  //child to right most
+				print(n.getChildAt(j));     //child.
+				}
+			}
+		}
+	}
+
 
 
 }
