@@ -10,7 +10,10 @@ public class tempTests {
 			t.insert(block);
 		}
 		
-		 System.out.println(t.search(20));
+		 KeyPair pair= t.getNodeAndIndex(13);
+		 System.out.println(pair.node.getPredecessor(13));
+		 //System.out.println(pair.node.getsSuccessor(13));
+		 
 	}
 
 }

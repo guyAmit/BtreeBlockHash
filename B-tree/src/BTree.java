@@ -90,6 +90,7 @@ public class BTree implements BTreeInterface {
 			this.root=s;
 			this.root.setLeaf(false);
 			s.addChild(r);
+			s.parent=null;
 			s.splitChild(0);
 			s.insertNonFull(b);
 		}
@@ -98,18 +99,47 @@ public class BTree implements BTreeInterface {
 		}
 		
 	}
+	
+	/*******************************************************************
+	 *  			  ### delete method ###
+	 *     #### and assisting methods for delete ###
+	 *******************************************************************/
 
 	@Override
 	public void delete(int key) {
 		// TODO Auto-generated method stub
-		
+		this.getRoot().delete(key);
 	}
 
+
+	public KeyPair getNodeAndIndex(int key) {
+		// TODO Auto-generated method stub
+		if(this.getRoot().isLeaf()){
+			for (int i = 0; i < this.getRoot().getNumOfBlocks(); i++) {
+				if(key==this.getRoot().getBlockAt(i).getKey())
+					return new KeyPair(i, this.getRoot());
+			}
+			return null;
+		}
+		return this.getRoot().getNodeAndIndex(key);
+	}
+	
+	/*******************************************************************
+	 *                       END
+	 *  			  ### delete method ###
+	 *     #### and assisting methods for delete ###
+	 *******************************************************************/
+	
 	@Override
 	public MerkleBNode createMBT() {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	
+	
+
+	
 	
 	public void print(BNode n)
 	{
