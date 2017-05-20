@@ -6,12 +6,11 @@ public class tempTests {
 		// TODO Auto-generated method stub
 		BTree t = new BTree(3);
 		ArrayList<Block> blocks = Block.blockFactory(11, 31);
-		for (Block block : blocks) {
-			t.insert(block);
-		}
+		System.out.println(blocks);
+		blocks.remove(blocks.size()-1);
+		System.out.println(blocks);
 		
-		 KeyPair pair= t.getNodeAndIndex(13);
-		 System.out.println(pair.node.getPredecessor(13));
+		
 		 //System.out.println(pair.node.getsSuccessor(13));
 		 
 	}

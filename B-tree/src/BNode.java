@@ -295,15 +295,17 @@ public class BNode implements BNodeInterface {
 			//case 2:
 			if(y.node.getNumOfBlocks()>=t){
 			   KeyPair pred= x.node.getPredecessor(key);
+			   Block predBlock = pred.node.getBlockAt(pred.index); 
 			   y.node.delete(pred.node.getBlockKeyAt(pred.index));
-			   x.node.getBlocksList().set(index, pred.node.getBlockAt(pred.index));
+			   x.node.getBlocksList().set(index, predBlock);
 			  }
 			
 			//case 3:
 			else if(y.node.getNumOfBlocks()==t-1 & z.node.getNumOfBlocks()>=t){
 				   KeyPair succ= x.node.getSuccessor(key);
+				   Block succBlock=succ.node.getBlockAt(succ.index);
 				   z.node.delete(succ.node.getBlockKeyAt(succ.index));
-				   x.node.getBlocksList().set(index, succ.node.getBlockAt(succ.index));
+				   x.node.getBlocksList().set(index, succBlock);
 			  }
 			
 			//case 4:
@@ -350,8 +352,8 @@ public class BNode implements BNodeInterface {
 	//y and z are brothers. 
 	//key pairs s.t. the index is their child number according to there parent
 	public void merge(KeyPair y, KeyPair z){
+		BNode p = y.node.parent;
 		if(y.index<z.index){
-			BNode parent = y.node.parent;
 			y.node.blocksList.add(parent.getBlockAt(y.index));//add the middle block
 			y.node.numOfBlocks++;
 			for (Block block : z.node.blocksList) { //add all blocks of z
@@ -363,11 +365,10 @@ public class BNode implements BNodeInterface {
 				child.parent=y.node;
 				y.node.childrenList.add(child);
 			}
-			parent.blocksList.remove(parent.getBlockAt(y.index));
+			p.blocksList.remove(p.getBlockAt(y.index));
 		}
 		else{
-			BNode parent = y.node.parent;
-			y.node.blocksList.add(0,parent.getBlockAt(y.index-1));//add the middle block
+			y.node.blocksList.add(0,p.getBlockAt(y.index-1));//add the middle block
 			y.node.numOfBlocks++;
 			for (int i = z.node.blocksList.size()-1; i >= 0; i--) {
 				y.node.blocksList.add(0,z.node.getBlockAt(i));
@@ -377,10 +378,10 @@ public class BNode implements BNodeInterface {
 				z.node.getChildAt(i).parent=y.node;
 				y.node.childrenList.add(0,z.node.getChildAt(i));
 			}
-			parent.blocksList.remove(parent.getBlockAt(y.index-1));
+			p.blocksList.remove(p.getBlockAt(y.index-1));
 		}
-		parent.childrenList.remove(z.index);
-		parent.numOfBlocks--;
+		p.childrenList.remove(z.index);
+		p.numOfBlocks--;
 	}
 	
 	//pair s.t. the index is the index of the node according to the parent
@@ -397,7 +398,7 @@ public class BNode implements BNodeInterface {
 			  	u.numOfBlocks--;
 			  	if(u.childrenList.size()>0){
 			  		 pair.node.childrenList.add(u.getChildAt(u.childrenList.size()-1));
-			  		 u.childrenList.subList(0, u.childrenList.size()-1);
+			  		 u.childrenList.remove(u.childrenList.size()-1);
 			  	}
 			  	return;
 		  	}
