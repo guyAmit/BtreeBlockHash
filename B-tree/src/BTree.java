@@ -133,7 +133,24 @@ public class BTree implements BTreeInterface {
 	@Override
 	public MerkleBNode createMBT() {
 		// TODO Auto-generated method stub
-		return null;
+		//BFS algorithm
+		QueueLinkedList<BNode> q = new QueueLinkedList<>();
+		QueueLinkedList<MerkleBNode> mQ = new QueueLinkedList<>();
+		MerkleBNode root= this.getRoot().createHashNode();
+		q.enqueue(this.getRoot());
+		mQ.enqueue(root);
+		while(!q.isEmpty()){
+			BNode node = q.dequeue();
+			MerkleBNode Mnode = mQ.dequeue();
+			if(!node.isLeaf()){
+				for (BNode child : node.getChildrenList()) {
+					Mnode.getChildrenList().add(child.createHashNode());
+				}
+			}
+			
+		}
+		return root;
+		
 	}
 	
 	

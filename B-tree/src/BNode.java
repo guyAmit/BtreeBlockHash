@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 //SUBMIT
 public class BNode implements BNodeInterface {
@@ -479,7 +480,23 @@ public class BNode implements BNodeInterface {
 	@Override
 	public MerkleBNode createHashNode() {
 		// TODO Auto-generated method stub
-		return null;
+		if(this.isLeaf){
+			ArrayList<byte[]> data=new ArrayList<byte[]>();
+			for (Block block : this.getBlocksList()) {
+				data.add(block.getData());
+			}
+			MerkleBNode returnVal = new MerkleBNode(HashUtils.sha1Hash(data));
+			return returnVal;
+		}
+		else{
+			ArrayList<byte[]> data=new ArrayList<byte[]>();
+			for (int i = 0; i < this.getBlocksList().size(); i++) {
+				data.add(this.childrenList.get(i).createHashNode().getHashValue());
+				data.add(this.getBlocksList().get(i).getData());
+			}
+			data.add(this.childrenList.get(this.childrenList.size()-1).createHashNode().getHashValue());
+			return new MerkleBNode(HashUtils.sha1Hash(data));
+		}
 	}
 	
 	public void setLeaf(boolean isLeaf) {
