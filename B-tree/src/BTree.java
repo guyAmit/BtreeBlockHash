@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+
 // SUBMIT
 public class BTree implements BTreeInterface {
 
@@ -133,26 +136,21 @@ public class BTree implements BTreeInterface {
 	@Override
 	public MerkleBNode createMBT() {
 		// TODO Auto-generated method stub
-		//BFS algorithm
-		QueueLinkedList<BNode> q = new QueueLinkedList<>();
-		QueueLinkedList<MerkleBNode> mQ = new QueueLinkedList<>();
-		MerkleBNode root= this.getRoot().createHashNode();
-		q.enqueue(this.getRoot());
-		mQ.enqueue(root);
-		while(!q.isEmpty()){
-			BNode node = q.dequeue();
-			MerkleBNode Mnode = mQ.dequeue();
-			if(!node.isLeaf()){
-				for (BNode child : node.getChildrenList()) {
-					Mnode.getChildrenList().add(child.createHashNode());
-				}
-			}
-			
-		}
-		return root;
+		return this.getRoot().createHashNode();
 		
 	}
 	
+    private static ArrayList<String> getHashValues(MerkleBNode merkleBNode,ArrayList<String> arrayList) {
+        if (merkleBNode.isLeaf()) {
+                arrayList.add(Arrays.toString(merkleBNode.getHashValue()));
+        } else {
+            for (int i = 0; i < merkleBNode.getChildrenList().size(); i++) {
+                getHashValues(merkleBNode.getChildrenList().get(i), arrayList);
+            }
+            arrayList.add(Arrays.toString(merkleBNode.getHashValue()));
+        }
+        return arrayList;
+    }
 	
 	
 

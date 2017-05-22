@@ -490,12 +490,17 @@ public class BNode implements BNodeInterface {
 		}
 		else{
 			ArrayList<byte[]> data=new ArrayList<byte[]>();
+			ArrayList<MerkleBNode> childs= new ArrayList<MerkleBNode>();
 			for (int i = 0; i < this.getBlocksList().size(); i++) {
-				data.add(this.childrenList.get(i).createHashNode().getHashValue());
-				data.add(this.getBlocksList().get(i).getData());
+				MerkleBNode node= this.childrenList.get(i).createHashNode();
+				childs.add(node);
+				data.add(node.getHashValue());
+				data.add(this.getBlocksList().get(i).getData());				
 			}
-			data.add(this.childrenList.get(this.childrenList.size()-1).createHashNode().getHashValue());
-			return new MerkleBNode(HashUtils.sha1Hash(data));
+			MerkleBNode node= this.childrenList.get(this.childrenList.size()-1).createHashNode();
+			childs.add(node);
+			data.add(node.getHashValue());
+			return new MerkleBNode(HashUtils.sha1Hash(data),childs);
 		}
 	}
 	
