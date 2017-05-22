@@ -111,7 +111,8 @@ public class BTree implements BTreeInterface {
 	@Override
 	public void delete(int key) {
 		// TODO Auto-generated method stub
-		this.getRoot().delete(key);
+		if(this.getRoot()!=null)
+			this.getRoot().delete(key);
 	}
 
 
@@ -136,8 +137,9 @@ public class BTree implements BTreeInterface {
 	@Override
 	public MerkleBNode createMBT() {
 		// TODO Auto-generated method stub
-		return this.getRoot().createHashNode();
-		
+		if(this.getRoot()!=null)
+			return this.getRoot().createHashNode();
+		return null;
 	}
 	
     private static ArrayList<String> getHashValues(MerkleBNode merkleBNode,ArrayList<String> arrayList) {

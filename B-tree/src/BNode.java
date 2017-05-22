@@ -278,7 +278,7 @@ public class BNode implements BNodeInterface {
 		
 		//getting to the node and modifying the tree for removal
 		KeyPair x = this.getNodeAndIndex(key);
-		
+			
 		//case 0 : key is not in the tree
 		if (x==null) return;
 		
@@ -318,8 +318,17 @@ public class BNode implements BNodeInterface {
 			
 		}
 		
+		if(x.node.parent!=null && x.node.parent.childrenList.size()==1 
+				& x.node.parent.blocksList.isEmpty()){
+		this.blocksList=x.node.blocksList;
+		this.isLeaf=true;
+		this.childrenList.remove(0);
+		this.numOfBlocks=x.node.numOfBlocks;
+		}
+		
 	}
 	
+	//gets the Predecessor of the block with the index @key
 	public KeyPair getPredecessor(int key){
 		int index=this.indexOfKey(key);
 		if(this.isLeaf()){
@@ -335,6 +344,7 @@ public class BNode implements BNodeInterface {
 		}
 	}
 	
+	//gets the Successor of the block with the index @key
 	public KeyPair getSuccessor(int key){
 		int index=this.indexOfKey(key);
 		if(this.isLeaf()){
@@ -352,12 +362,13 @@ public class BNode implements BNodeInterface {
 	
 	//y and z are brothers. 
 	//key pairs s.t. the index is their child number according to there parent
+	//this method merge the nodes into the node @y
 	public void merge(KeyPair y, KeyPair z){
 		BNode p = y.node.parent;
 		if(y.index<z.index){
 			y.node.blocksList.add(parent.getBlockAt(y.index));//add the middle block
 			y.node.numOfBlocks++;
-			for (Block block : z.node.blocksList) { //add all blocks of z
+			for (Block block : z.node.blocksList) { //add all blocks of z into the end of y
 				y.node.blocksList.add(block);
 				y.node.numOfBlocks++;
 			
@@ -371,24 +382,25 @@ public class BNode implements BNodeInterface {
 		else{
 			y.node.blocksList.add(0,p.getBlockAt(y.index-1));//add the middle block
 			y.node.numOfBlocks++;
-			for (int i = z.node.blocksList.size()-1; i >= 0; i--) {
+			for (int i = z.node.blocksList.size()-1; i >= 0; i--) { //add all blocks into the start of y
 				y.node.blocksList.add(0,z.node.getBlockAt(i));
 				y.node.numOfBlocks++;
 			}
-			for (int i = z.node.childrenList.size()-1; i > 0; i--) {
+			for (int i = z.node.childrenList.size()-1; i > 0; i--) { 
 				z.node.getChildAt(i).parent=y.node;
 				y.node.childrenList.add(0,z.node.getChildAt(i));
 			}
 			p.blocksList.remove(p.getBlockAt(y.index-1));
 		}
 		p.childrenList.remove(z.index);
-		p.numOfBlocks--;
+		p.numOfBlocks--;		
 	}
 	
 	//pair s.t. the index is the index of the node according to the parent
 	public void shift(KeyPair pair){
+		//checks if any modifications are needed
 	  if(pair.node.getNumOfBlocks()==t-1){
-		  
+		  //case 1: shift left
 		  if(pair.index-1>=0 && pair.index-1<pair.node.parent.childrenList.size()){
 		    BNode u = pair.node.parent.getChildAt(pair.index-1);
 		  	if(u.numOfBlocks>=t){
@@ -404,7 +416,7 @@ public class BNode implements BNodeInterface {
 			  	return;
 		  	}
 		  }
-		  
+		  //case 2: shift right
 		  if(pair.index+1>=0 && pair.index+1<pair.node.parent.childrenList.size()){
 			 BNode w=pair.node.parent.getChildAt(pair.index+1);
 			  if(w.numOfBlocks>=t){
@@ -420,7 +432,7 @@ public class BNode implements BNodeInterface {
 				  return;
 			  }
 		  }
-		  
+		  //case 3 and 4: merge, we will always merge into pair i.e. delete the other node
 		if(pair.index-1>=0 && pair.index-1<pair.node.parent.childrenList.size()){
 			BNode u = pair.node.parent.getChildAt(pair.index-1);
 		    merge(pair,new KeyPair(pair.index-1, u));
@@ -434,6 +446,8 @@ public class BNode implements BNodeInterface {
 	}
 	
 	//returns the index in the node of key, and the node her self
+	//in the process of getting to the node, this method modifies the tree s.t. it will be ready 
+	//removal of the block with the key @key
 	protected KeyPair getNodeAndIndex(int key) {
 		// TODO Auto-generated method stub
 		int i=0;
@@ -477,6 +491,9 @@ public class BNode implements BNodeInterface {
 	 *******************************************************************/
 	
 
+	/*******************************************************************
+	 *  			  ### Hash node ###
+	 *******************************************************************/
 	@Override
 	public MerkleBNode createHashNode() {
 		// TODO Auto-generated method stub
@@ -503,6 +520,10 @@ public class BNode implements BNodeInterface {
 			return new MerkleBNode(HashUtils.sha1Hash(data),childs);
 		}
 	}
+	
+	/*******************************************************************              
+	 * 			    #### and assisting methods###
+	 *******************************************************************/
 	
 	public void setLeaf(boolean isLeaf) {
 		this.isLeaf = isLeaf;
