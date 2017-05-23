@@ -278,9 +278,20 @@ public class BNode implements BNodeInterface {
 		
 		//getting to the node and modifying the tree for removal
 		KeyPair x = this.getNodeAndIndex(key);
-			
+					
 		//case 0 : key is not in the tree
 		if (x==null) return;
+		
+		//if x is a copy of the root
+		if(this.blocksList.isEmpty() && this.childrenList.size()==1){
+			this.blocksList=x.node.blocksList;
+			this.numOfBlocks=x.node.numOfBlocks;
+			this.isLeaf=x.node.isLeaf;
+			this.childrenList=x.node.childrenList;
+			for (BNode child : x.node.childrenList) {
+				child.parent=this;
+			}
+		}
 		
 	   // case 1 : leaf with more then t-1 blocks		
 		int index  = x.node.indexOfKey(key);
@@ -291,7 +302,7 @@ public class BNode implements BNodeInterface {
 		//cases 2-4
 		if(!x.node.isLeaf()){
 			KeyPair y=new KeyPair(index,x.node.getChildAt(index));
-			KeyPair z= new KeyPair(index,x.node.getChildAt(index+1));
+			KeyPair z= new KeyPair(index+1,x.node.getChildAt(index+1));
 			
 			//case 2:
 			if(y.node.getNumOfBlocks()>=t){
@@ -317,13 +328,19 @@ public class BNode implements BNodeInterface {
 			}
 			
 		}
+		if(this.blocksList==x.node.blocksList)
+			this.numOfBlocks=x.node.numOfBlocks;
 		
 		if(x.node.parent!=null && x.node.parent.childrenList.size()==1 
 				& x.node.parent.blocksList.isEmpty()){
 		this.blocksList=x.node.blocksList;
-		this.isLeaf=true;
+		this.isLeaf=x.node.isLeaf;
 		this.childrenList.remove(0);
+		this.childrenList=x.node.childrenList;
 		this.numOfBlocks=x.node.numOfBlocks;
+		for (BNode child : x.node.childrenList) {
+			child.parent=this;
+		}
 		}
 		
 	}
@@ -366,7 +383,7 @@ public class BNode implements BNodeInterface {
 	public void merge(KeyPair y, KeyPair z){
 		BNode p = y.node.parent;
 		if(y.index<z.index){
-			y.node.blocksList.add(parent.getBlockAt(y.index));//add the middle block
+			y.node.blocksList.add(p.getBlockAt(y.index));//add the middle block
 			y.node.numOfBlocks++;
 			for (Block block : z.node.blocksList) { //add all blocks of z into the end of y
 				y.node.blocksList.add(block);
@@ -386,14 +403,15 @@ public class BNode implements BNodeInterface {
 				y.node.blocksList.add(0,z.node.getBlockAt(i));
 				y.node.numOfBlocks++;
 			}
-			for (int i = z.node.childrenList.size()-1; i > 0; i--) { 
+			for (int i = z.node.childrenList.size()-1; i >= 0; i--) { 
 				z.node.getChildAt(i).parent=y.node;
 				y.node.childrenList.add(0,z.node.getChildAt(i));
 			}
 			p.blocksList.remove(p.getBlockAt(y.index-1));
 		}
+		
 		p.childrenList.remove(z.index);
-		p.numOfBlocks--;		
+		p.numOfBlocks--;
 	}
 	
 	//pair s.t. the index is the index of the node according to the parent
@@ -463,7 +481,8 @@ public class BNode implements BNodeInterface {
 					indexInParent=this.parent.closesetIndexOfKey(this.getBlockKeyAt(0));
 				shift(new KeyPair(indexInParent, this));
 			}
-			return new KeyPair(i, this);
+			int j=this.closesetIndexOfKey(key);
+			return new KeyPair(j, this);
 		}
 		else{
 			if(this.isLeaf)
@@ -478,7 +497,8 @@ public class BNode implements BNodeInterface {
 						indexInParent=this.parent.closesetIndexOfKey(this.getBlockKeyAt(0));
 					shift(new KeyPair(indexInParent, this));
 				}
-				return this.getChildAt(i).getNodeAndIndex(key);
+				int j=this.closesetIndexOfKey(key);
+				return this.getChildAt(j).getNodeAndIndex(key);
 			}
 		}
 	}
