@@ -281,30 +281,57 @@ public class BNode implements BNodeInterface {
 					
 		//case 0 : key is not in the tree
 		if (x==null) return;
+		int index  = x.node.indexOfKey(key);
 		
-		//if x is a copy of the root
-		if(this.blocksList.isEmpty() && this.childrenList.size()==1){
+		//if x became the new root
+		if(x.node.parent!=null && x.node.parent.blocksList.isEmpty()){
 			this.blocksList=x.node.blocksList;
 			this.numOfBlocks=x.node.numOfBlocks;
 			this.isLeaf=x.node.isLeaf;
-			this.childrenList=x.node.childrenList;
 			for (BNode child : x.node.childrenList) {
 				child.parent=this;
 			}
+			this.childrenList=x.node.childrenList;
+		}
+		else if(this.blocksList.isEmpty() && this.childrenList.size()==1){
+			this.blocksList=this.childrenList.get(0).blocksList;
+			this.numOfBlocks=this.childrenList.get(0).numOfBlocks;
+			this.isLeaf=this.childrenList.get(0).isLeaf;
+			for (BNode child : this.childrenList.get(0).childrenList) {
+				child.parent=this;
+			}
+			this.childrenList=this.childrenList.get(0).childrenList;
 		}
 		
-	   // case 1 : leaf with more then t-1 blocks		
-		int index  = x.node.indexOfKey(key);
+		//case 1: x is the root, but there is more then one block in it
+		if(x.node.isLeaf && x.node.parent==null & x.node.blocksList.size()>1){
+			x.node.blocksList.remove(index);
+			x.node.numOfBlocks--;
+			return;
+		}
+		
+		//case 2: x is root, and there is only one block
+		if(x.node.isLeaf & x.node.parent==null & x.node.blocksList.size()==1
+				& x.node.childrenList.isEmpty()){
+			this.blocksList=new ArrayList<Block>();
+			this.numOfBlocks=0;
+			return;
+		}
+		
+		
+	   // case 3 : leaf with more then t-1 blocks		
 		if(x.node.isLeaf() && x.node.getNumOfBlocks()>this.t-1){
 			x.node.getBlocksList().remove(index);
 			x.node.numOfBlocks--;
+			if(this.blocksList==x.node.blocksList)
+				this.numOfBlocks=x.node.numOfBlocks;
 		}
-		//cases 2-4
+		//cases 4-6: x is not a leaf
 		if(!x.node.isLeaf()){
 			KeyPair y=new KeyPair(index,x.node.getChildAt(index));
 			KeyPair z= new KeyPair(index+1,x.node.getChildAt(index+1));
 			
-			//case 2:
+			//case 4: need the replace with predecessor
 			if(y.node.getNumOfBlocks()>=t){
 			   KeyPair pred= x.node.getPredecessor(key);
 			   Block predBlock = pred.node.getBlockAt(pred.index); 
@@ -312,7 +339,7 @@ public class BNode implements BNodeInterface {
 			   x.node.getBlocksList().set(index, predBlock);
 			  }
 			
-			//case 3:
+			//case 5: need the replace with successor
 			else if(y.node.getNumOfBlocks()==t-1 & z.node.getNumOfBlocks()>=t){
 				   KeyPair succ= x.node.getSuccessor(key);
 				   Block succBlock=succ.node.getBlockAt(succ.index);
@@ -320,28 +347,29 @@ public class BNode implements BNodeInterface {
 				   x.node.getBlocksList().set(index, succBlock);
 			  }
 			
-			//case 4:
+			//case 6: merge
 			else if(y.node.getNumOfBlocks()==t-1 && z.node.getNumOfBlocks()==t-1){
 			   x.node.merge(y, z);
-			   y.node.delete(key);
+			   
+			   //if y became x
+              if(x.node.parent==null && x.node.childrenList.size()==1 
+						& x.node.blocksList.isEmpty()){
+				x.node.blocksList=y.node.blocksList;
+				x.node.isLeaf=y.node.isLeaf;
+				x.node.childrenList.remove(0);
+				for (BNode child : y.node.childrenList) {
+					child.parent=x.node;
+				}
+				x.node.childrenList=y.node.childrenList;
+				x.node.numOfBlocks=y.node.numOfBlocks;
+				x.node.delete(key);
+			  }            
+              else
+            	  y.node.delete(key);
 				
 			}
 			
-		}
-		if(this.blocksList==x.node.blocksList)
-			this.numOfBlocks=x.node.numOfBlocks;
-		
-		if(x.node.parent!=null && x.node.parent.childrenList.size()==1 
-				& x.node.parent.blocksList.isEmpty()){
-		this.blocksList=x.node.blocksList;
-		this.isLeaf=x.node.isLeaf;
-		this.childrenList.remove(0);
-		this.childrenList=x.node.childrenList;
-		this.numOfBlocks=x.node.numOfBlocks;
-		for (BNode child : x.node.childrenList) {
-			child.parent=this;
-		}
-		}
+		}		
 		
 	}
 	
@@ -354,7 +382,7 @@ public class BNode implements BNodeInterface {
 		}
 		else{
 			BNode pointer=this.getChildAt(index);
-			while( !pointer.childrenList.isEmpty() && pointer.getChildAt(numOfBlocks)!=null){ //while the biggest child is not null
+			while( !pointer.childrenList.isEmpty() && pointer.getChildAt(pointer.numOfBlocks)!=null){ //while the biggest child is not null
 				pointer=pointer.getChildAt(pointer.numOfBlocks); //go to the biggest child
 			}
 			return new KeyPair(pointer.numOfBlocks-1, pointer);
@@ -427,8 +455,9 @@ public class BNode implements BNodeInterface {
 			  	parent.blocksList.set(pair.index-1,u.getBlockAt(u.getNumOfBlocks()-1));
 			  	u.blocksList.remove(u.numOfBlocks-1);
 			  	u.numOfBlocks--;
-			  	if(u.childrenList.size()>0){
-			  		 pair.node.childrenList.add(u.getChildAt(u.childrenList.size()-1));
+			  	if(!u.childrenList.isEmpty()){
+			  		u.getChildAt(u.childrenList.size()-1).parent=pair.node;
+			  		 pair.node.childrenList.add(0,u.getChildAt(u.childrenList.size()-1));
 			  		 u.childrenList.remove(u.childrenList.size()-1);
 			  	}
 			  	return;
@@ -444,6 +473,7 @@ public class BNode implements BNodeInterface {
 				  w.blocksList.remove(0);
 				  w.numOfBlocks--;
 				  if(w.childrenList.size()>0){
+					  w.getChildAt(0).parent=pair.node;
 					  pair.node.childrenList.add(w.getChildAt(0));
 				  	  w.childrenList.remove(0);
 				  }

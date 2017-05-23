@@ -113,6 +113,8 @@ public class BTree implements BTreeInterface {
 		// TODO Auto-generated method stub
 		if(this.getRoot()!=null)
 			this.getRoot().delete(key);
+		if(this.getRoot().getBlocksList().isEmpty())
+			this.root=null;
 	}
 
 

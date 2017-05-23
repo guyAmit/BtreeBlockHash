@@ -34,7 +34,7 @@ public class BTreeLatex {
 
     public static void main(String args[]) {
         if (solvedLastBug()) {
-            autoTest(10, 50, 10);
+            autoTest(20, 100, 20);
         } else {
             StartLastFailedTest();
         }
@@ -74,7 +74,7 @@ public class BTreeLatex {
         BTreeLatex autoTesto = null;
         boolean flag = true;
         for (int t = 2; t <= maxT & flag; t++) {
-            System.out.println("Testing trees with t = "+t);
+            System.out.println("Testing trees with t = " + t);
             for (int i = 1; i <= maxNodes & flag; i++) {
                 testTree = new BTree(t);
                 autoTesto = new BTreeLatex(testTree, "BTreeInLatex");
@@ -114,34 +114,41 @@ public class BTreeLatex {
         }
     }
 
-    //public void 
     private boolean testDelete(BTree tree, int bound) {
         boolean result = true;
         PrintWriter writer;
         try {
             writer = new PrintWriter(new BufferedWriter(new FileWriter(new File(dir.getAbsolutePath() + "\\manualCodeOfLastTest.txt"), true)));
             deletions = arrScrambler(bound);
-            for (int i = 0; i < deletions.length & result; i++) {
+            for (int i = 0; i < deletions.length - 1 & result; i++) {
+                clearBuffer();
                 addTreeState("before deleting " + deletions[i]);
                 writer.println("tree.delete(" + deletions[i] + ");");
-                tree.delete(i);
+                tree.delete(deletions[i]);
                 result = addTreeState("after deleting " + deletions[i]);
-                if (!result) {
-                    commitBufferedStates();
-                    finish();
-                    writer.close();
-                    return result;
-                }
+            }
+
+            if (result) {
                 clearBuffer();
+                addTreeState("before deleting " + deletions[deletions.length - 1]);
+                tree.delete(deletions[deletions.length - 1]);
+                addTreeState("after deleting " + deletions[deletions.length - 1]);
+                result = tree.getRoot() == null;
+            }
+
+            if (!result) {
+                commitBufferedStates();
+                finish();
             }
             writer.close();
+            return result;
         } catch (Exception e) {
             commitBufferedStates();
             finish();
             e.printStackTrace();
             return false;
         }
-        return true;
+        //return true;
     }
 
     private static Integer[] arrScrambler(int bound) {
@@ -162,6 +169,7 @@ public class BTreeLatex {
             writer.println("BTree tree = new BTree(" + tree.getT() + "); \n BTreeLatex manualTesto=new BTreeLatex(tree,\"manualTest\");");
             insertions = arrScrambler(bound);
             for (int i = 0; i < bound; i++) {
+                clearBuffer();
                 addTreeState("before inserting " + insertions[i]);
                 writer.println("tree.insert(new Block(" + insertions[i] + ",null));");
                 tree.insert(new Block(insertions[i], null));
@@ -172,7 +180,6 @@ public class BTreeLatex {
                     writer.close();
                     return result;
                 }
-                clearBuffer();
             }
             writer.close();
         } catch (Exception e) {
@@ -328,11 +335,11 @@ public class BTreeLatex {
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeInt(tree.getT());
             out.writeInt(insertions.length);
-            for(int i=0;i<insertions.length;i++){
+            for (int i = 0; i < insertions.length; i++) {
                 out.writeInt(insertions[i]);
             }
             out.writeInt(deletions.length);
-            for(int i=0;i<deletions.length;i++){
+            for (int i = 0; i < deletions.length; i++) {
                 out.writeInt(deletions[i]);
             }
             out.close();
@@ -349,12 +356,12 @@ public class BTreeLatex {
             ObjectInputStream in = new ObjectInputStream(fileIn);
             tree = new BTree(in.readInt());
             insertions = new Integer[in.readInt()];
-            for(int i=0;i<insertions.length;i++){
-                insertions[i]=in.readInt();
+            for (int i = 0; i < insertions.length; i++) {
+                insertions[i] = in.readInt();
             }
             deletions = new Integer[in.readInt()];
-            for(int i=0;i<deletions.length;i++){
-                deletions[i]=in.readInt();
+            for (int i = 0; i < deletions.length; i++) {
+                deletions[i] = in.readInt();
             }
             in.close();
             fileIn.close();
@@ -377,12 +384,20 @@ public class BTreeLatex {
 
     public boolean useDeletions() {
         boolean result = true;
-        for (int i = 0; i < deletions.length & result; i++) {
+        for (int i = 0; i < deletions.length - 1 & result; i++) {
             clearBuffer();
             addTreeState("before deleting " + deletions[i]);
             tree.delete(deletions[i]);
             result = addTreeState("after deleting " + deletions[i]);
         }
+        if (result) {
+            clearBuffer();
+            addTreeState("before deleting " + deletions[deletions.length - 1]);
+            tree.delete(deletions[deletions.length - 1]);
+            addTreeState("after deleting " + deletions[deletions.length - 1]);
+            result = tree.getRoot() == null;
+        }
+
         return result;
     }
 
@@ -392,8 +407,7 @@ public class BTreeLatex {
         if (latx.useInsertions() && latx.useDeletions()) {
             System.out.println("Success!");
             new File(dir.getAbsolutePath() + "\\lastFailedTest.evya").delete();
-            
-        } else{
+        } else {
             latx.commitBufferedStates();
             latx.finish();
             System.out.println("Failed again");
