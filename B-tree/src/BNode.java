@@ -303,7 +303,7 @@ public class BNode implements BNodeInterface {
 			this.childrenList=this.childrenList.get(0).childrenList;
 		}
 		
-		//case 1: x is the root, but there is more then one block in it
+		//case 1: x is the root,and the root is a lead, but there is more then one block in it
 		if(x.node.isLeaf && x.node.parent==null & x.node.blocksList.size()>1){
 			x.node.blocksList.remove(index);
 			x.node.numOfBlocks--;
