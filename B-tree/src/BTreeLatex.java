@@ -1,4 +1,3 @@
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,8 +21,8 @@ import java.util.List;
  */
 public class BTreeLatex {
 
-    private static final File desktop = new File(System.getProperty("user.home"), "Desktop");
-    private static final File dir = new File(desktop, "\\BTreeLatex");
+    private static final File DESKTOP = new File(System.getProperty("user.home"), "Desktop");
+    private static final File DIR = new File(DESKTOP, "\\BTreeLatex");
     private StringBuilder statesHolder;
     private StringBuilder buffer;
     private StringBuilder longTermBuffer;
@@ -31,6 +30,9 @@ public class BTreeLatex {
     private BTree tree;
     private Integer[] insertions;
     private Integer[] deletions;
+    private Integer[] searchs;
+    private int totalBlocks;
+    private int height;
 
     public static void main(String args[]) {
         if (solvedLastBug()) {
@@ -78,12 +80,12 @@ public class BTreeLatex {
             for (int i = 1; i <= maxNodes & flag; i++) {
                 testTree = new BTree(t);
                 autoTesto = new BTreeLatex(testTree, "BTreeInLatex");
-                flag = autoTesto.initSimpleTree(testTree, i) && autoTesto.testDelete(testTree, i);
+                flag = autoTesto.initSimpleTree(i) && autoTesto.testSearch(i) && autoTesto.testDelete(i);
             }
         }
         if (flag) {
-            new File(dir.getAbsolutePath() + "\\lastFailedTest.evya").delete();
-            System.out.println("Succeeded autoTest");
+            new File(DIR.getAbsolutePath() + "\\lastFailedTest.evya").delete();
+            System.out.println("Succeeded auto tests, well done!");
         } else {
             System.out.println("Failed test");
             autoTesto.saveLastTest();
@@ -93,13 +95,14 @@ public class BTreeLatex {
     public BTreeLatex(BTree tree, String filename) {
         deletions = new Integer[0];
         insertions = new Integer[0];
+        searchs = new Integer[0];
         statesHolder = new StringBuilder();
         buffer = new StringBuilder();
         longTermBuffer = new StringBuilder();
         this.tree = tree;
-        readableFile = new File(dir.getAbsolutePath() + "\\" + filename + ".txt");
+        readableFile = new File(DIR.getAbsolutePath() + "\\" + filename + ".txt");
         try {
-            dir.mkdir();
+            DIR.mkdir();
             readableFile.createNewFile();
             statesHolder.append("\\documentclass{standalone}\n"
                     + " \\usepackage{forest}\n"
@@ -114,28 +117,35 @@ public class BTreeLatex {
         }
     }
 
-    private boolean testDelete(BTree tree, int bound) {
+    private boolean testDelete(int bound) {
         boolean result = true;
         PrintWriter writer;
         try {
-            writer = new PrintWriter(new BufferedWriter(new FileWriter(new File(dir.getAbsolutePath() + "\\manualCodeOfLastTest.txt"), true)));
+            writer = new PrintWriter(new BufferedWriter(new FileWriter(new File(DIR.getAbsolutePath() + "\\manualCodeOfLastTest.txt"), true)));
             deletions = arrScrambler(bound);
             for (int i = 0; i < deletions.length - 1 & result; i++) {
                 clearBuffer();
                 addTreeState("before deleting " + deletions[i]);
                 writer.println("tree.delete(" + deletions[i] + ");");
                 tree.delete(deletions[i]);
-                result = addTreeState("after deleting " + deletions[i]);
+                result = addTreeState("after deleting " + deletions[i]) && tree.search(deletions[i]) == null;
+                if (totalBlocks != bound - (i + 1) & result) {
+                    System.out.println("Total blocks in tree is " + totalBlocks + " and supposed to be " + (bound - (i + 1)));
+                    result = false;
+                }
             }
 
-            if (result) {
+            if (result & deletions.length > 0) {
                 clearBuffer();
                 addTreeState("before deleting " + deletions[deletions.length - 1]);
                 tree.delete(deletions[deletions.length - 1]);
                 addTreeState("after deleting " + deletions[deletions.length - 1]);
-                result = tree.getRoot() == null;
+                result = tree.getRoot() == null || (tree.getRoot().getBlocksList().isEmpty()&tree.getRoot().getChildrenList().isEmpty());
+                if (totalBlocks != 0 & result) {
+                    System.out.println("Total blocks in tree is " + totalBlocks + " and supposed to be " + 0);
+                    result = false;
+                }
             }
-
             if (!result) {
                 commitBufferedStates();
                 finish();
@@ -162,24 +172,53 @@ public class BTreeLatex {
         return arr;
     }
 
-    public boolean initSimpleTree(BTree tree, int bound) {
+    public boolean testSearch(int bound) {
         boolean result = true;
         try {
-            PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(new File(dir.getAbsolutePath() + "\\manualCodeOfLastTest.txt"))));
+            PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(new File(DIR.getAbsolutePath() + "\\manualCodeOfLastTest.txt"), true)));
+            searchs = arrScrambler(bound);
+            for (int i = 0; i < bound & result; i++) {
+                clearBuffer();
+                writer.println("tree.search(" + searchs[i] + ");");
+                Block block = tree.search(searchs[i]);
+                result = (block != null && block.getKey() == searchs[i]);
+                String searchResults = block == null ? "null" : "" + block.getKey();
+                addTreeState("searched" + searchs[i] + " got " + searchResults);
+            }
+            if (!result) {
+                commitBufferedStates();
+                finish();
+            }
+            writer.close();
+        } catch (Exception e) {
+            commitBufferedStates();
+            finish();
+            e.printStackTrace();
+            return false;
+        }
+        return result;
+    }
+
+    public boolean initSimpleTree(int bound) {
+        boolean result = true;
+        try {
+            PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(new File(DIR.getAbsolutePath() + "\\manualCodeOfLastTest.txt"))));
             writer.println("BTree tree = new BTree(" + tree.getT() + "); \n BTreeLatex manualTesto=new BTreeLatex(tree,\"manualTest\");");
             insertions = arrScrambler(bound);
-            for (int i = 0; i < bound; i++) {
+            for (int i = 0; i < bound & result; i++) {
                 clearBuffer();
                 addTreeState("before inserting " + insertions[i]);
                 writer.println("tree.insert(new Block(" + insertions[i] + ",null));");
                 tree.insert(new Block(insertions[i], null));
                 result = addTreeState("after inserting " + insertions[i]);
-                if (!result) {
-                    commitBufferedStates();
-                    finish();
-                    writer.close();
-                    return result;
+                if (totalBlocks != i + 1 & result) {
+                    System.out.println("Total blocks in tree is " + totalBlocks + " and supposed to be " + (i + 1));
+                    result = false;
                 }
+            }
+            if (!result) {
+                commitBufferedStates();
+                finish();
             }
             writer.close();
         } catch (Exception e) {
@@ -189,47 +228,40 @@ public class BTreeLatex {
             return false;
         }
 
-        return true;
+        return result;
     }
 
     public void finish() {
-        try {
-            PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(readableFile)));
-            writer.println(statesHolder + "\\end{tabular}\n"
-                    + "\n"
-                    + "\\end{document}");
-            writer.close();
+            try (PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter(readableFile)))) {
+                writer.println(statesHolder + "\\end{tabular}\n"
+                        + "\n"
+                        + "\\end{document}");
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public boolean addTreeState(String stateName) {
-        boolean result = true;
+        height = -1;
         buffer.setLength(0);
-        buffer.append("\\qquad \\begin{forest}\n"
-                + "label={" + stateName + "},\n"
-                + "for tree={draw,l=20+level*5mm, s sep=3mm,anchor=north,child anchor=north,if={isodd(n_children())}{\n"
-                + "      for children={\n"
-                + "        if={\n"
-                + "          equal(n,int((1+n_children(\"!u\"))/2))\n"
-                + "        }{calign with current}{}\n"
-                + "      }\n"
-                + "    }{},align=center}");
-        result = createNodes(tree.getRoot(), Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+        buffer.append("\\qquad \\begin{forest}\nlabel={").append(stateName).append("},\nfor tree={draw,l=20+level*5mm, s sep=3mm,anchor=north,child anchor=north,if={isodd(n_children())}{\n      for children={\n        if={\n          equal(n,int((1+n_children(\"!u\"))/2))\n        }{calign with current}{}\n      }\n    }{},align=center}");
+        totalBlocks = 0;
+        boolean result = createNodes(tree.getRoot(), Integer.MIN_VALUE, Integer.MAX_VALUE, true, 0);
         buffer.append(" \\end{forest}"
                 + "\n \\qquad \\mbox{} \\\\[0.4in] ");
         longTermBuffer.append(buffer);
         return result;
     }
 
-    private boolean createNodes(BNode node, int min, int max, boolean isRoot) {
+    private boolean createNodes(BNode node, int min, int max, boolean isRoot, int currentHeight) {
         boolean result = true;
         if (node == null) {
             buffer.append("[NULL ,color=red]");
             return false;
         }
-        int currentKey = -1;
+        totalBlocks += node.getBlocksList().size();
+        int currentKey = Integer.MIN_VALUE;
         if (node.getBlocksList().size() > 0) {
             currentKey = node.getBlockAt(0).getKey();
         } else {
@@ -238,22 +270,25 @@ public class BTreeLatex {
 
         String misplaced = "";
         if (currentKey > max | currentKey < min) {
-            misplaced = "\\cellcolor{red!25} ";
+            misplaced = "\\cellcolor{red!25}";
             result = false;
         }
-        buffer.append("[\\begin{tabular}{@{}c@{}} \\ {\\begin{tabular}{|*{" + Math.max(1, node.getBlocksList().size()) + "}{c|}} " + "\\hline ");
-        buffer.append(currentKey + " " + misplaced);
-        int localMin = misplaced == "" ? currentKey : min;
+        buffer.append("[\\begin{tabular}{@{}c@{}} \\ {\\begin{tabular}{|*{").append(Math.max(1, node.getBlocksList().size())).append("}{c|}} \\hline ");
+        if (node.getBlocksList().isEmpty()) {
+            buffer.append("\\cellcolor{red!25}");
+        } else {
+            buffer.append(currentKey).append(" ").append(misplaced);
+        }
+        int localMin = "".equals(misplaced) ? currentKey : min;
         misplaced = "";
         for (int i = 1; i < node.getBlocksList().size(); i++) {
             currentKey = node.getBlockAt(i).getKey();
             if (currentKey > max | currentKey < min | currentKey < localMin) {
-                misplaced = "\\cellcolor{red!25} ";
+                misplaced = "\\cellcolor{red!25}";
                 result = false;
             }
-            buffer.append("& " + misplaced
-                    + node.getBlockAt(i).getKey() + " ");
-            localMin = misplaced == "" ? currentKey : localMin;
+            buffer.append("& ").append(misplaced).append(node.getBlockAt(i).getKey()).append(" ");
+            localMin = "".equals(misplaced) ? currentKey : localMin;
             misplaced = "";
         }
 
@@ -263,41 +298,47 @@ public class BTreeLatex {
             result = false;
         }
         if (node.getNumOfBlocks() != node.getBlocksList().size()) {
-            error = "\\\\ \\colorbox{red!50}{blocks $\\neq$ numOfBlocks} ";
+            error += "\\\\ \\colorbox{red!50}{blocks $\\neq$ numOfBlocks}";
             result = false;
         }
         if ((node.getChildrenList().size() != node.getNumOfBlocks() + 1) & !node.isLeaf()) {
-            error = "\\\\ \\colorbox{red!50}{children $\\neq$ numOfBlocks+1} ";
+            error += "\\\\ \\colorbox{red!50}{children $\\neq$ numOfBlocks+1}";
             result = false;
         }
         if ((node.getChildrenList().size() != node.getBlocksList().size() + 1) & !node.isLeaf()) {
-            error = "\\\\ \\colorbox{red!50}{children $\\neq$ blocks+1} ";
+            error += "\\\\ \\colorbox{red!50}{children $\\neq$ blocks+1}";
             result = false;
         }
         if (node.getChildrenList().size() > 2 * tree.getRoot().getT()) {
-            error = "\\\\ \\colorbox{red!50}{children $>$ 2t} ";
+            error += "\\\\ \\colorbox{red!50}{children $>$ 2t}";
             result = false;
         }
         if (node.getBlocksList().size() > 2 * tree.getRoot().getT() - 1) {
-            error = "\\\\ \\colorbox{red!50}{blocks $>$ 2t-1} ";
+            error += "\\\\ \\colorbox{red!50}{blocks $>$ 2t-1}";
             result = false;
         }
         if (node.getBlocksList().size() < tree.getRoot().getT() - 1 & !isRoot) {
-            error = "\\\\ \\colorbox{red!50}{blocks $<$ t-1} ";
+            error += "\\\\ \\colorbox{red!50}{blocks $<$ t-1}";
             result = false;
         }
-        if (currentKey == -1) {
-            error = "\\\\ \\colorbox{red!50}{blocks=0} ";
+        if (currentKey == Integer.MIN_VALUE) {
+            error += "\\\\ \\colorbox{red!50}{blocks=0}";
             result = false;
+        }
+        if (node.isLeaf()) {
+            if (height != -1 & height != currentHeight) {
+                error += "\\\\ \\colorbox{red!50}{height of leaf differs}";
+                result = false;
+            } else
+                height=currentHeight;
         }
 
-        buffer.append("\\\\ \\hline \\end{tabular}} " + dataOfNode(node) + error
-                + " \\end{tabular}");
+        buffer.append("\\\\ \\hline \\end{tabular}} ").append(dataOfNode(node)).append(error).append(" \\end{tabular}");
         if (!node.isLeaf()) {
             for (int i = 0; i < node.getChildrenList().size(); i++) {
-                int keyBefore = (node.getBlocksList().size() > 0 & i > 0) ? node.getBlockKeyAt(i - 1) : min;
-                int keyAfter = (node.getBlocksList().size() > 0 & i < node.getChildrenList().size() - 1) ? node.getBlockKeyAt(i) : max;
-                result = result & createNodes(node.getChildAt(i), keyBefore, keyAfter, false);
+                int keyBefore = (node.getBlocksList().size() >=i & i > 0) ? node.getBlockKeyAt(i - 1) : min;
+                int keyAfter = (node.getBlocksList().size() > 0 & i < node.getBlocksList().size()) ? node.getBlockKeyAt(i) : max;
+                result = result & createNodes(node.getChildAt(i), keyBefore, keyAfter, false, currentHeight + 1);
             }
         }
 
@@ -314,7 +355,7 @@ public class BTreeLatex {
     }
 
     private static boolean solvedLastBug() {
-        return !new File(dir.getAbsolutePath() + "\\lastFailedTest.evya").exists();
+        return !new File(DIR.getAbsolutePath() + "\\lastFailedTest.evya").exists();
     }
 
     private static String dataOfNode(BNode node) {
@@ -327,23 +368,24 @@ public class BTreeLatex {
     }
 
     private void saveLastTest() {
-        try {
-            File file = new File(dir.getAbsolutePath() + "\\lastFailedTest.evya");
-            file.createNewFile();
-            FileOutputStream fileOut
-                    = new FileOutputStream(file);
-            ObjectOutputStream out = new ObjectOutputStream(fileOut);
-            out.writeInt(tree.getT());
-            out.writeInt(insertions.length);
-            for (int i = 0; i < insertions.length; i++) {
-                out.writeInt(insertions[i]);
-            }
-            out.writeInt(deletions.length);
-            for (int i = 0; i < deletions.length; i++) {
-                out.writeInt(deletions[i]);
-            }
-            out.close();
-            fileOut.close();
+            File file = new File(DIR.getAbsolutePath() + "\\lastFailedTest.evya");
+            try (FileOutputStream fileOut = new FileOutputStream(file)) {
+                file.createNewFile();
+                ObjectOutputStream out = new ObjectOutputStream(fileOut);
+                out.writeInt(tree.getT());
+                out.writeInt(insertions.length);
+                for (int i = 0; i < insertions.length; i++) {
+                    out.writeInt(insertions[i]);
+                }
+                out.writeInt(searchs.length);
+                for (int i = 0; i < searchs.length; i++) {
+                    out.writeInt(searchs[i]);
+                }
+                out.writeInt(deletions.length);
+                for (int i = 0; i < deletions.length; i++) {
+                    out.writeInt(deletions[i]);
+                }
+                out.close();
             System.out.println("Saved last failed test");
         } catch (Exception e) {
             e.printStackTrace();
@@ -351,14 +393,19 @@ public class BTreeLatex {
     }
 
     private void loadLastFailedTest() {
-        try {
-            FileInputStream fileIn = new FileInputStream(new File(dir.getAbsolutePath() + "\\lastFailedTest.evya"));
+        try(FileInputStream fileIn = new FileInputStream(new File(DIR.getAbsolutePath() + "\\lastFailedTest.evya"))) {
             ObjectInputStream in = new ObjectInputStream(fileIn);
             tree = new BTree(in.readInt());
             insertions = new Integer[in.readInt()];
             for (int i = 0; i < insertions.length; i++) {
                 insertions[i] = in.readInt();
             }
+
+            searchs = new Integer[in.readInt()];
+            for (int i = 0; i < searchs.length; i++) {
+                searchs[i] = in.readInt();
+            }
+
             deletions = new Integer[in.readInt()];
             for (int i = 0; i < deletions.length; i++) {
                 deletions[i] = in.readInt();
@@ -367,35 +414,66 @@ public class BTreeLatex {
             fileIn.close();
             System.out.println("Loaded last failed test");
         } catch (Exception e) {
-            e.printStackTrace();
+            new File(DIR.getAbsolutePath() + "\\lastFailedTest.evya").delete();
+            BTreeLatex.main(null);
         }
     }
 
-    public boolean useInsertions() {
+    private boolean useInsertions() {
         boolean result = true;
         for (int i = 0; i < insertions.length & result; i++) {
             clearBuffer();
             addTreeState("before inserting " + insertions[i]);
             tree.insert(new Block(insertions[i], null));
             result = addTreeState("after inserting " + insertions[i]);
+            
+            if (totalBlocks != i + 1 & result) {
+                System.out.println("Total blocks in tree is " + totalBlocks + " and supposed to be " + (i + 1));
+                result = false;
+            }
         }
         return result;
     }
 
-    public boolean useDeletions() {
+    private boolean useSearchs() {
+        boolean result = true;
+        for (int i = 0; i < searchs.length & result; i++) {
+            clearBuffer();
+            addTreeState("before searching " + searchs[i]);
+            Block block = tree.search(searchs[i]);
+            result = (block != null && block.getKey() == searchs[i]);
+            String searchResults = block == null ? "null" : "" + block.getKey();
+            addTreeState("searched" + searchs[i] + " got " + searchResults);
+        }
+        if (!result) {
+            commitBufferedStates();
+            finish();
+        }
+        return result;
+    }
+
+    private boolean useDeletions() {
         boolean result = true;
         for (int i = 0; i < deletions.length - 1 & result; i++) {
             clearBuffer();
             addTreeState("before deleting " + deletions[i]);
             tree.delete(deletions[i]);
-            result = addTreeState("after deleting " + deletions[i]);
+            result = addTreeState("after deleting " + deletions[i]) && tree.search(deletions[i]) == null;
+            if (totalBlocks != (deletions.length - (i + 1)) & result) {
+                System.out.println("Total blocks in tree is " + totalBlocks + " and supposed to be " + (deletions.length - (i + 1)));
+                result = false;
+            }
         }
-        if (result) {
+        if (result & deletions.length > 0) {
             clearBuffer();
             addTreeState("before deleting " + deletions[deletions.length - 1]);
             tree.delete(deletions[deletions.length - 1]);
             addTreeState("after deleting " + deletions[deletions.length - 1]);
-            result = tree.getRoot() == null;
+            result = tree.getRoot() == null || (tree.getRoot().getBlocksList().isEmpty()&tree.getRoot().getChildrenList().isEmpty());
+            if (totalBlocks != 0 & result) {
+                System.out.println("Total blocks in tree is " + totalBlocks + " and supposed to be " + 0);
+                result = false;
+            }
         }
 
         return result;
@@ -404,13 +482,14 @@ public class BTreeLatex {
     public static void StartLastFailedTest() {
         BTreeLatex latx = new BTreeLatex(null, "BTreeInLatex");
         latx.loadLastFailedTest();
-        if (latx.useInsertions() && latx.useDeletions()) {
-            System.out.println("Success!");
-            new File(dir.getAbsolutePath() + "\\lastFailedTest.evya").delete();
+        if (latx.useInsertions() & latx.useSearchs() & latx.useDeletions()) {
+            System.out.println("Succeeded the saved test! \n Starting auto tests again.");
+            new File(DIR.getAbsolutePath() + "\\lastFailedTest.evya").delete();
+            autoTest(20, 100, 20);
         } else {
             latx.commitBufferedStates();
             latx.finish();
-            System.out.println("Failed again");
+            System.out.println("Failed saved test");
         }
     }
 }

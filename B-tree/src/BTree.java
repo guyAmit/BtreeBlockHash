@@ -118,17 +118,6 @@ public class BTree implements BTreeInterface {
 	}
 
 
-	public KeyPair getNodeAndIndex(int key) {
-		// TODO Auto-generated method stub
-		if(this.getRoot().isLeaf()){
-			for (int i = 0; i < this.getRoot().getNumOfBlocks(); i++) {
-				if(key==this.getRoot().getBlockAt(i).getKey())
-					return new KeyPair(i, this.getRoot());
-			}
-			return null;
-		}
-		return this.getRoot().getNodeAndIndex(key);
-	}
 	
 	/*******************************************************************
 	 *                       END
@@ -156,31 +145,9 @@ public class BTree implements BTreeInterface {
         return arrayList;
     }
 	
-	
+
 
 	
-	
-	public void print(BNode n)
-	{
-		for(int i = 0; i < n.getNumOfBlocks(); i++)
-		{
-			System.out.print(n.getBlockAt(i)+" " );//this part prints root node
-		}
-
-		if(!n.isLeaf())//this is called when root is not leaf;
-		{
-
-			for(int j = 0; j <= n.getNumOfBlocks()  ; j++)//in this loop we recurse
-			{				  //to print out tree in
-				if(n.getChildAt(j) != null) //preorder fashion.
-				{			  //going from left most
-				System.out.println();	  //child to right most
-				print(n.getChildAt(j));     //child.
-				}
-			}
-		}
-	}
-
 
 
 }

@@ -197,6 +197,11 @@ public class BNode implements BNodeInterface {
 	/*******************************************************************
 	 *  			  ### insert ###
 	 *******************************************************************/
+	/**
+	 * split the i'th child into two child's
+	 * @param i
+	 * - the index of the child needs splitting
+	 */
 	public void splitChild(int i){
 		BNode y= this.childrenList.get(i);
 		BNode z= new BNode(t,y.isLeaf,t-1,this);
@@ -372,9 +377,12 @@ public class BNode implements BNodeInterface {
 		}		
 		
 	}
-	
-	//gets the Predecessor of the block with the index @key
-	public KeyPair getPredecessor(int key){
+	/**
+	 *gets the Predecessor of the block with the index key
+	 * @param key
+	 * @return the Predecessor of the block with the index key
+	 */
+	private KeyPair getPredecessor(int key){
 		int index=this.indexOfKey(key);
 		if(this.isLeaf()){
 			//not relevant
@@ -389,8 +397,12 @@ public class BNode implements BNodeInterface {
 		}
 	}
 	
-	//gets the Successor of the block with the index @key
-	public KeyPair getSuccessor(int key){
+	/**
+	 * gets the Successor of the block with the index key
+	 * @param key
+	 * @return the Successor of the block with the index key
+	 */
+	private KeyPair getSuccessor(int key){
 		int index=this.indexOfKey(key);
 		if(this.isLeaf()){
 			//not relevant
@@ -405,10 +417,15 @@ public class BNode implements BNodeInterface {
 		}
 	}
 	
-	//y and z are brothers. 
-	//key pairs s.t. the index is their child number according to there parent
-	//this method merge the nodes into the node @y
-	public void merge(KeyPair y, KeyPair z){
+     /**
+      * Merges z and y into one node
+      * @param KeyPair z
+      * @param KeyPair y 
+      * <p>
+      * s.t. he index is their child number according to there parent
+      * 
+      */
+	private void merge(KeyPair y, KeyPair z){
 		BNode p = y.node.parent;
 		if(y.index<z.index){
 			y.node.blocksList.add(p.getBlockAt(y.index));//add the middle block
@@ -442,8 +459,14 @@ public class BNode implements BNodeInterface {
 		p.numOfBlocks--;
 	}
 	
-	//pair s.t. the index is the index of the node according to the parent
-	public void shift(KeyPair pair){
+	
+	/**
+	 * Do shift or merge 
+	 * @param pair
+	 * <p>
+	 * pair s.t. the index is the index of the node according to the parent
+	 */
+	private void shift(KeyPair pair){
 		//checks if any modifications are needed
 	  if(pair.node.getNumOfBlocks()==t-1){
 		  //case 1: shift left
@@ -493,9 +516,16 @@ public class BNode implements BNodeInterface {
 	
 	}
 	
-	//returns the index in the node of key, and the node her self
-	//in the process of getting to the node, this method modifies the tree s.t. it will be ready 
-	//removal of the block with the key @key
+	
+	
+	/**
+	 * Returns the index in the node of key, and the node her self
+	 * in the process of getting to the node, this method modifies the tree s.t. it will be ready 
+	 *removal of the block with the key
+	 * 
+	 * @param Key
+	 * @return KepyPair of Bnode and the index of the Bnode in his parent
+	 */
 	protected KeyPair getNodeAndIndex(int key) {
 		// TODO Auto-generated method stub
 		int i=0;
@@ -572,7 +602,7 @@ public class BNode implements BNodeInterface {
 	}
 	
 	/*******************************************************************              
-	 * 			    #### and assisting methods###
+	 * 			    ####  assisting methods ####
 	 *******************************************************************/
 	
 	public void setLeaf(boolean isLeaf) {
@@ -580,7 +610,11 @@ public class BNode implements BNodeInterface {
 	}
 	
 	
-	
+	/**
+	 * Gets the index of the block with the index key
+	 * @param key
+	 * @return the index of the block with the index key
+	 */
 	private int indexOfKey(int key){
 		int i=0;
 		while(i < this.numOfBlocks && this.getBlockAt(i).getKey()<key){
@@ -592,6 +626,11 @@ public class BNode implements BNodeInterface {
 		
 	}
 	
+	/**
+	 * Gets the closest index in this node of a block with a key "key"
+	 * @param key
+	 * @return the closest index in this node of a block with a key "key"
+	 */
 	private int closesetIndexOfKey(int key){
 		int i=0;
 		while(i < this.numOfBlocks && this.getBlockAt(i).getKey()<key){
@@ -601,6 +640,37 @@ public class BNode implements BNodeInterface {
 		
 	}
 	
+
+
 	
+	
+	
+/*******************************************************************              
+	 * 			    #### KeyPair Class ####
+ *******************************************************************/
+	/**
+	 * 
+	 * @author Guy-Amit,Amit Rubin
+	 * <p> simple class to hold a <b>BNode</b> and the <b>index
+	 * of that BNode in his parent</b> 
+	 * @param index
+	 * @param node
+	 */
+private class KeyPair {
+
+	public int index;
+	public BNode node;
+	
+	public KeyPair(int index,BNode node){
+		this.node=node;
+		this.index=index;
+	}
+	
+	@Override 
+	public String toString(){
+		return "["+node.toString()+","+index+"]";
+	}
+}
 
 }
+
